@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:14-bullseye
+    volumes:
+    - postgres_data:/var/lib/postgresql/data
+    environment:
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_USER=postgres
+    - POSTGRES_DB=postgres
+
+  django:
+    build:
+      context: ./..
+      dockerfile: ./docker/Dockerfile
+    command: [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+    depends_on:
+    - postgres
+    env_file:
+    - ../app/config/.env
+    volumes:
+    - ../app:/usr/local/src/app
+
+volumes:
+  postgres_data:
