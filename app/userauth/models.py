@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-import binascii
-import os
 import uuid
-from datetime import datetime
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
 
 class UserManager(BaseUserManager):
 
@@ -48,4 +46,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username}"
-

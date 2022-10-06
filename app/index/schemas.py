@@ -1,19 +1,24 @@
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
+
 from django import models
 from ninja import Schema
+
 
 class ValidationMode(models.TextChoices):
     Manual = "Manual"
     Everything = "Everything"
 
+
 class BaseErrorResponse(Schema):
     detail: str
+
 
 class IndexInput(Schema):
     name: str
     validation_mode: Optional[ValidationMode] = ValidationMode.Manual
+
 
 class IndexSchema(Schema):
     id: UUID
@@ -21,8 +26,10 @@ class IndexSchema(Schema):
     created_by_id: UUID
     validation_mode: ValidationMode
 
+
 class PublicationInput(Schema):
     pass
+
 
 class PublicationSchema(Schema):
     id: UUID
@@ -32,6 +39,7 @@ class PublicationSchema(Schema):
 
 class PropositionInput(Schema):
     pass
+
 
 class PropositionSchema(Schema):
     id: UUID

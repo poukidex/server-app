@@ -3,13 +3,7 @@ default_stages: [commit]
 fail_fast: false
 
 files: app/
-exclude: |
-  (?x)(
-    app/**/migrations/|
-    .*/urls.py|
-    .*/urls/|
-    .*.html
-  )
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.2.0

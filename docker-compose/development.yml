@@ -4,14 +4,14 @@ services:
     volumes:
     - postgres_data:/var/lib/postgresql/data
     environment:
-    - POSTGRES_PASSWORD=postgres
-    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=password
+    - POSTGRES_USER=user
     - POSTGRES_DB=postgres
 
   django:
     build:
       context: ./..
-      dockerfile: ./docker/Dockerfile
+      dockerfile: ./docker-compose/Dockerfile
     command: [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
     depends_on:
     - postgres

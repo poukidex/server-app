@@ -190,5 +190,4 @@ for logger in debug_loggers.split(",") if debug_loggers else []:
     LOGGING["loggers"][logger]["level"] = "DEBUG"
 
 
-
 JWT_KEY = os.getenv("JWT_KEY")
