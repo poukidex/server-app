@@ -7,7 +7,7 @@ services:
     - POSTGRES_PASSWORD=password
     - POSTGRES_USER=user
     - POSTGRES_DB=postgres
-
+  
   django:
     build:
       context: ./..
@@ -19,6 +19,9 @@ services:
     - ../app/config/.env
     volumes:
     - ../app:/usr/local/src/app
+    ports:
+    - "127.0.0.1:8000:8000"
+
 
 volumes:
   postgres_data:

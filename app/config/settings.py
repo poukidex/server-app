@@ -16,7 +16,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DJANGO_DEBUG", "").lower() == "true"
 
-allowed_hosts_env = os.getenv("ALLOWED_HOSTS", "")
+allowed_hosts_env = os.getenv("DJANGO_ALLOWED_HOSTS", "")
 ALLOWED_HOSTS = allowed_hosts_env.split(",") if allowed_hosts_env else []
 
 
@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "ninja",
+    "userauth",
     "index",
 ]
 
@@ -63,6 +63,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+
+DJANGORESIZED_DEFAULT_SIZE = [200, 200]
+DJANGORESIZED_DEFAULT_QUALITY = 75
+DJANGORESIZED_DEFAULT_KEEP_META = True
+DJANGORESIZED_DEFAULT_FORCE_FORMAT = "PNG"
+DJANGORESIZED_DEFAULT_FORMAT_EXTENSIONS = {"PNG": ".png"}
+DJANGORESIZED_DEFAULT_NORMALIZE_ROTATION = True
+
+AUTH_USER_MODEL = "userauth.User"
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from django import models
+from django.db import models
 from ninja import Schema
 
 

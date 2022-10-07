@@ -11,16 +11,14 @@ class Index(models.Model):
     id: uuid.UUID = models.UUIDField(default=uuid.uuid4, primary_key=True)
     created_at: datetime = models.DateTimeField(auto_now_add=True)
 
-    name: str = models.CharField(
-        max_length=16, choices=ValidationMode.choices, default=ValidationMode.USER
-    )
+    name: str = models.CharField(max_length=64)
 
     created_by: User = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name="indexes"
     )
 
     validation_mode: ValidationMode = models.CharField(
-        max_length=16, choices=ValidationMode.choices, default=ValidationMode.USER
+        max_length=16, choices=ValidationMode.choices, default=ValidationMode.Manual
     )
 
     class Meta:
@@ -48,11 +46,11 @@ class Proposition(models.Model):
     created_at: datetime = models.DateTimeField(auto_now_add=True)
 
     publication: Publication = models.ForeignKey(
-        Publication, on_delete=models.CASCADE, related_name="publications"
+        Publication, on_delete=models.CASCADE, related_name="propositions"
     )
 
     user: User = models.ForeignKey(
-        Publication, on_delete=models.CASCADE, related_name="publications"
+        User, on_delete=models.CASCADE, related_name="propositions"
     )
 
     object_name: str = models.CharField(max_length=255)
