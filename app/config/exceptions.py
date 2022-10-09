@@ -28,5 +28,5 @@ class ForbiddenException(IndexException):
 
 
 class UnauthorizedException(IndexException):
-    def __int__(self) -> None:
+    def __init__(self) -> None:
         super().__init__(message="Unauthorized", status=HTTPStatus.UNAUTHORIZED)

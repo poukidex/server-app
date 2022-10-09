@@ -24,7 +24,7 @@ def update_proposition(request, id: UUID, payload: PropositionUpdate):
 
     if (
         proposition.user != request.user
-        or proposition.publication.index.created_by != request.user
+        or proposition.publication.index.creator != request.user
     ):
         raise ForbiddenException()
 
@@ -41,7 +41,7 @@ def delete_proposition(request, id: UUID):
 
     if (
         proposition.user != request.user
-        or proposition.publication.index.created_by != request.user
+        or proposition.publication.index.creator != request.user
     ):
         raise ForbiddenException()
 

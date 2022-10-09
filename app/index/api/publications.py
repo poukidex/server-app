@@ -28,7 +28,7 @@ def retrieve_publication(request, id: UUID):
 def update_publication(request, id: UUID, payload: PublicationUpdate):
     publication: Publication = Publication.objects.select_related("index").get(id=id)
 
-    if publication.index.created_by != request.user:
+    if publication.index.creator != request.user:
         raise ForbiddenException()
 
     update_object_from_schema(publication, payload)
@@ -40,7 +40,7 @@ def update_publication(request, id: UUID, payload: PublicationUpdate):
 def delete_publication(request, id: UUID):
     publication: Publication = Publication.objects.select_related("index").get(id=id)
 
-    if publication.index.created_by != request.user:
+    if publication.index.creator != request.user:
         raise ForbiddenException()
 
     publication.delete()

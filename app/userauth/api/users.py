@@ -15,7 +15,7 @@ def list_users(request):
 
 
 @router.post(path="", response={HTTPStatus.CREATED: UserSchema}, auth=None)
-def create_index(request, payload: UserInput):
+def create_user(request, payload: UserInput):
     if (
         payload.creation_token_password is None
         or payload.creation_token_password == ""

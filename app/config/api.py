@@ -1,4 +1,5 @@
 import logging
+from http import HTTPStatus
 
 from config.authentication import JWTBearer
 from config.exceptions import IndexException
@@ -21,7 +22,8 @@ api.add_router("users", users_router, tags=["user"])
 
 @api.exception_handler(IndexException)
 def api_handler_index_exception(request, exc: IndexException):
-    logging.exception("Error")
+    if exc.status in [HTTPStatus.INTERNAL_SERVER_ERROR]:
+        logging.exception("Error")
     return api.create_response(
         request,
         data={

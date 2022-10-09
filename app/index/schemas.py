@@ -6,10 +6,6 @@ from django.db import models
 from ninja import Schema
 
 
-class BaseErrorResponse(Schema):
-    detail: str
-
-
 class PropositionUploadInput(Schema):
     filename: str
 
@@ -21,10 +17,11 @@ class PropositionUploadSchema(Schema):
 
 class PropositionInput(Schema):
     object_name: str
+    comment: str
 
 
 class PropositionUpdate(Schema):
-    pass
+    comment: str
 
 
 class PropositionSchema(Schema):
@@ -33,6 +30,7 @@ class PropositionSchema(Schema):
     user_id: UUID
     object_name: str
     presigned_url: str
+    comment: str
 
 
 class ExtendedPropositionSchema(PropositionSchema):
@@ -40,14 +38,15 @@ class ExtendedPropositionSchema(PropositionSchema):
 
 
 class PublicationUpdate(Schema):
+    name: str
+    description: str
+
+
+class PublicationInput(PublicationUpdate):
     pass
 
 
-class PublicationInput(Schema):
-    pass
-
-
-class PublicationSchema(Schema):
+class PublicationSchema(PublicationInput):
     id: UUID
     created_at: datetime
     object_name: str

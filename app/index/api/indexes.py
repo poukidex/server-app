@@ -43,7 +43,7 @@ def retrieve_index(request, id: UUID):
 def update_index(request, id: UUID, payload: IndexUpdate):
     index: Index = Index.objects.get(id=id)
 
-    if index.created_by != request.user:
+    if index.creator != request.user:
         raise ForbiddenException()
 
     update_object_from_schema(index, payload)
@@ -55,7 +55,7 @@ def update_index(request, id: UUID, payload: IndexUpdate):
 def delete_index(request, id: UUID):
     index: Index = Index.objects.get(id=id)
 
-    if index.created_by != request.user:
+    if index.creator != request.user:
         raise ForbiddenException()
 
     index.delete()
@@ -69,7 +69,7 @@ def delete_index(request, id: UUID):
 def add_publication(request, id: UUID, payload: PublicationInput):
     index: Index = Index.objects.get(id=id)
 
-    if index.created_by != request.user:
+    if index.creator != request.user:
         raise ForbiddenException()
 
     publication: Publication = Publication(index=index, **payload.dict())
