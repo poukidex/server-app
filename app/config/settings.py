@@ -6,7 +6,6 @@ from django.utils.log import DEFAULT_LOGGING
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
@@ -18,7 +17,6 @@ DEBUG = os.getenv("DJANGO_DEBUG", "").lower() == "true"
 
 allowed_hosts_env = os.getenv("DJANGO_ALLOWED_HOSTS", "")
 ALLOWED_HOSTS = allowed_hosts_env.split(",") if allowed_hosts_env else []
-
 
 # Application definition
 
@@ -63,7 +61,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-
 DJANGORESIZED_DEFAULT_SIZE = [200, 200]
 DJANGORESIZED_DEFAULT_QUALITY = 75
 DJANGORESIZED_DEFAULT_KEEP_META = True
@@ -93,7 +90,6 @@ if os.getenv("DB_SSL", "false").lower() == "true":
     }
 CONN_MAX_AGE = 60
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -112,7 +108,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
@@ -123,7 +118,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
@@ -149,7 +143,6 @@ LOGGING["formatters"]["index"] = {
     "format": "{asctime} [{name}] {levelname}: {message}",
     "style": "{",
 }
-
 
 # Setting default console log level by env variable
 LOGGING["handlers"]["console"]["level"] = handlers_loglevel
@@ -198,5 +191,21 @@ for logger in debug_loggers.split(",") if debug_loggers else []:
             }
     LOGGING["loggers"][logger]["level"] = "DEBUG"
 
-
 JWT_KEY = os.getenv("JWT_KEY")
+if JWT_KEY is None:
+    raise Exception("JWT_KEY shall be configured")
+
+JWT_EXPIRES_IN = os.getenv("JWT_EXPIRES_IN")
+if JWT_EXPIRES_IN is None:
+    JWT_EXPIRES_IN = 3600
+
+S3_ENV = os.getenv("S3_ENV", "mock")
+S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL")
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_BUCKET_NAME = os.getenv("AWSE_BUCKET_NAME")
+AWS_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
+
+CREATION_TOKEN_PASSWORD = os.getenv("CREATION_TOKEN_PASSWORD")
+if CREATION_TOKEN_PASSWORD is None:
+    raise Exception("CREATION_TOKEN_PASSWORD shall be configured")

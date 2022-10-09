@@ -11,8 +11,11 @@ logger = logging.getLogger(__name__)
 
 class JWTBearer(HttpBearer):
     def authenticate(self, request: HttpRequest, token: str) -> bool:
+        if token is None or token == "":
+            return False
+
         try:
-            payload = jwt.decode(token, settings.JWT_KEY, algorithms=["HS256"])
+            payload = jwt.decode(jwt=token, key=settings.JWT_KEY, algorithms=["HS256"])
         except jwt.PyJWTError:
             return False
         except Exception:
@@ -23,7 +26,8 @@ class JWTBearer(HttpBearer):
         if not user_id:
             return False
 
-        if User.objects.filter(pk=user_id).exists():
-            return payload
+        if User.objects.filter(id=user_id).exists():
+            request.user = User.objects.get(id=user_id)
+            return True
 
         return False

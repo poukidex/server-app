@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 
+from config.external_client import s3_client
 from django.db import models
 from userauth.models import User
 
@@ -62,3 +63,7 @@ class Proposition(models.Model):
                 name="unique_proposition_publication_user",
             ),
         ]
+
+    @property
+    def presigned_url(self):
+        return s3_client.generate_presigned_url(self.object_name)

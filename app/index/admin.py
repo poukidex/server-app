@@ -28,7 +28,6 @@ class UserAdmin(DjangoUserAdmin):
                 )
             },
         ),
-        (_("Email"), {"fields": ("email", "email_confirmed")}),
         (
             _("Profile"),
             {"fields": ("picture",)},
