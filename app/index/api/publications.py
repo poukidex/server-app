@@ -9,9 +9,9 @@ from index.models import Proposition, Publication
 from index.schemas import (
     ExtendedPropositionSchema,
     ExtendedPublicationSchema,
+    ImageUploadInput,
+    ImageUploadSchema,
     PropositionInput,
-    PropositionUploadInput,
-    PropositionUploadSchema,
     PublicationUpdate,
 )
 from index.utils import check_object, update_object_from_schema
@@ -49,18 +49,16 @@ def delete_publication(request, id: UUID):
 
 
 @router.post(
-    path="/{id}/propositions/upload", response={HTTPStatus.OK: PropositionUploadSchema}
+    path="/{id}/propositions/upload", response={HTTPStatus.OK: ImageUploadSchema}
 )
-def generate_presigned_url_for_upload(
-    request, id: UUID, payload: PropositionUploadInput
-):
+def generate_presigned_url_for_upload(request, id: UUID, payload: ImageUploadInput):
     publication: Publication = Publication.objects.get(id=id)
 
     object_name = s3_client.generate_object_name(str(publication.id), payload.filename)
 
     presigned_url = s3_client.generate_presigned_url()
 
-    return PropositionUploadSchema(object_name=object_name, presigned_url=presigned_url)
+    return ImageUploadSchema(object_name=object_name, presigned_url=presigned_url)
 
 
 @router.post(

@@ -70,6 +70,8 @@ class Proposition(models.Model):
         User, on_delete=models.CASCADE, related_name="propositions"
     )
 
+    comment = models.CharField(max_length=255)
+
     object_name = models.CharField(max_length=255)
 
     def __str__(self):

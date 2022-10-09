@@ -1,11 +1,11 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from config.exceptions import ForbiddenException
+from config.exceptions import ForbiddenException, IncoherentInput
 from ninja import Router
 
-from index.models import Proposition
-from index.schemas import ExtendedPropositionSchema, PropositionUpdate
+from index.models import Approbation, Proposition
+from index.schemas import ApprobationInput, ExtendedPropositionSchema, PropositionUpdate
 from index.utils import update_object_from_schema
 
 router = Router()
@@ -48,3 +48,23 @@ def delete_proposition(request, id: UUID):
     proposition.delete()
 
     return HTTPStatus.NO_CONTENT, None
+
+
+@router.post(path="/{id}/approve", response={HTTPStatus.OK: ExtendedPropositionSchema})
+def approve_proposition(request, id: UUID, payload: ApprobationInput):
+    proposition: Proposition = (
+        Proposition.objects.select_related("publication__index")
+        .prefetch_related("approbation__user__picture")
+        .get(id=id)
+    )
+
+    if proposition.user == request.user:
+        raise IncoherentInput("You cannot approve your own proposition!")
+
+    approbation: Approbation = Approbation.objects.get_or_create(
+        proposition=proposition, user=request.user
+    )
+    approbation.approved = payload.approved
+    approbation.save()
+
+    return HTTPStatus

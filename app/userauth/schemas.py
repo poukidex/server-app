@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from ninja import Schema
@@ -13,6 +14,7 @@ class UserInput(Schema):
 class UserSchema(Schema):
     id: UUID
     username: str
+    picture: Optional[str]
 
 
 class ConnectionInfos(Schema):

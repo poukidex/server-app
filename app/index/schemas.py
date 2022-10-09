@@ -4,13 +4,23 @@ from uuid import UUID
 
 from django.db import models
 from ninja import Schema
+from userauth.schemas import UserSchema
 
 
-class PropositionUploadInput(Schema):
+class ApprobationInput(Schema):
+    approved: bool
+
+
+class ApprobationSchema(Schema):
+    user: UserSchema
+    approved: bool
+
+
+class ImageUploadInput(Schema):
     filename: str
 
 
-class PropositionUploadSchema(Schema):
+class ImageUploadSchema(Schema):
     object_name: str
     presigned_url: str
 
@@ -34,7 +44,7 @@ class PropositionSchema(Schema):
 
 
 class ExtendedPropositionSchema(PropositionSchema):
-    pass
+    approbations: list[ApprobationSchema]
 
 
 class PublicationUpdate(Schema):
@@ -43,7 +53,7 @@ class PublicationUpdate(Schema):
 
 
 class PublicationInput(PublicationUpdate):
-    pass
+    object_name: str
 
 
 class PublicationSchema(PublicationInput):
