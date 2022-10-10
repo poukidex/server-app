@@ -73,18 +73,19 @@ class ValidationMode(models.TextChoices):
 
 class IndexUpdate(Schema):
     name: str
+    description: str
 
 
-class IndexInput(Schema):
-    name: str
+class IndexInput(IndexUpdate):
     validation_mode: Optional[ValidationMode] = ValidationMode.Manual
 
 
 class IndexSchema(Schema):
     id: UUID
     name: str
+    description: str
     created_at: datetime
-    created_by_id: UUID
+    creator_id: UUID
     validation_mode: ValidationMode
 
 

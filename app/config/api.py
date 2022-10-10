@@ -11,7 +11,7 @@ from index.api.indexes import router as index_router
 from index.api.propositions import router as proposition_router
 from index.api.publications import router as publication_router
 
-api = NinjaAPI(auth=JWTBearer())
+api = NinjaAPI(auth=JWTBearer(), urls_namespace="api")
 
 api.add_router("indexes", index_router, tags=["index"])
 api.add_router("publications", publication_router, tags=["publication"])

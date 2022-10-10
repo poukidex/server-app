@@ -2,6 +2,7 @@ import uuid
 
 from config.external_client import s3_client
 from django.db import models
+from django.utils import timezone
 from userauth.models import User
 
 from index.schemas import ValidationMode
@@ -9,7 +10,8 @@ from index.schemas import ValidationMode
 
 class Index(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=255)
@@ -40,7 +42,8 @@ class Publication(models.Model):
     )
 
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     name = models.CharField(max_length=63)
     description = models.CharField(max_length=255)
@@ -60,7 +63,8 @@ class Publication(models.Model):
 
 class Proposition(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     publication = models.ForeignKey(
         Publication, on_delete=models.CASCADE, related_name="propositions"
@@ -91,6 +95,9 @@ class Proposition(models.Model):
 
 
 class Approbation(models.Model):
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
     proposition = models.ForeignKey(
         Proposition, on_delete=models.CASCADE, related_name="approbations"
     )

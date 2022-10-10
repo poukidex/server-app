@@ -17,6 +17,7 @@ class JWTBearer(HttpBearer):
         try:
             payload = jwt.decode(jwt=token, key=settings.JWT_KEY, algorithms=["HS256"])
         except jwt.PyJWTError:
+            logger.exception("Decode error:")
             return False
         except Exception:
             logger.exception("error decoding jwt")
