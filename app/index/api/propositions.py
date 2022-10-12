@@ -16,7 +16,7 @@ def retrieve_proposition(request, id: UUID):
     return HTTPStatus.OK, Proposition.objects.get(id=id)
 
 
-@router.post(path="/{id}", response={HTTPStatus.OK: ExtendedPropositionSchema})
+@router.put(path="/{id}", response={HTTPStatus.OK: ExtendedPropositionSchema})
 def update_proposition(request, id: UUID, payload: PropositionUpdate):
     proposition: Proposition = Proposition.objects.select_related(
         "publication__index"

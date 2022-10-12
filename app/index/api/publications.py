@@ -24,7 +24,7 @@ def retrieve_publication(request, id: UUID):
     return HTTPStatus.OK, Publication.objects.get(id=id)
 
 
-@router.post(path="/{id}", response={HTTPStatus.OK: ExtendedPublicationSchema})
+@router.put(path="/{id}", response={HTTPStatus.OK: ExtendedPublicationSchema})
 def update_publication(request, id: UUID, payload: PublicationUpdate):
     publication: Publication = Publication.objects.select_related("index").get(id=id)
 

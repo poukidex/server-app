@@ -43,7 +43,7 @@ def retrieve_index(request, id: UUID):
     return HTTPStatus.OK, Index.objects.get(id=id)
 
 
-@router.post(
+@router.put(
     path="/{id}", response={HTTPStatus.OK: ExtendedIndexSchema}, url_name="index"
 )
 def update_index(request, id: UUID, payload: IndexUpdate):
