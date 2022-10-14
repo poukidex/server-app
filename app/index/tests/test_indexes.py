@@ -17,34 +17,6 @@ class TestIndexes(BaseTest):
     def setUpClass(cls) -> None:
         super().setUpClass()
 
-        cls.first_index = Index.objects.create(
-            creator=cls.user_one,
-            name="first-index",
-            description="some",
-            validation_mode=ValidationMode.Manual,
-        )
-
-        cls.second_index = Index.objects.create(
-            creator=cls.user_one,
-            name="second-index",
-            description="some",
-            validation_mode=ValidationMode.Manual,
-        )
-
-        cls.second_index_publication_1 = Publication.objects.create(
-            index=cls.second_index,
-            name="some-name",
-            description="description",
-            object_name="object_name",
-        )
-
-        cls.second_index_publication_2 = Publication.objects.create(
-            index=cls.second_index,
-            name="some-name2",
-            description="description",
-            object_name="object_name",
-        )
-
     def test_list_indexes(self):
         kwargs = {}
         response = self.client.get(
@@ -105,6 +77,17 @@ class TestIndexes(BaseTest):
             content, ExtendedIndexSchema.from_orm(index_updated)
         )
 
+    def test_update_index_forbidden(self):
+        data = {"name": "new-name", "description": "description"}
+        kwargs = {"id": self.first_index.id}
+        response = self.client.put(
+            reverse("api:index", kwargs=kwargs),
+            data=data,
+            content_type="application/json",
+            **self.auth_user_two
+        )
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+
     def test_delete_index(self):
         kwargs = {"id": self.first_index.id}
         response = self.client.delete(
@@ -113,6 +96,13 @@ class TestIndexes(BaseTest):
         self.assertEqual(response.status_code, HTTPStatus.NO_CONTENT)
 
         self.assertFalse(Index.objects.filter(id=self.first_index.id).exists())
+
+    def test_delete_index_forbidden(self):
+        kwargs = {"id": self.first_index.id}
+        response = self.client.delete(
+            reverse("api:index", kwargs=kwargs), **self.auth_user_two
+        )
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
     def test_create_publication(self):
         data = {
@@ -135,6 +125,21 @@ class TestIndexes(BaseTest):
                 Publication.objects.get(id=content["id"])
             ),
         )
+
+    def test_create_publication_forbidden(self):
+        data = {
+            "name": "publication1",
+            "description": "some description of this publication",
+            "object_name": "an object_name somewhere",
+        }
+        kwargs = {"id": self.first_index.id}
+        response = self.client.post(
+            reverse("api:index_publications", kwargs=kwargs),
+            data=data,
+            content_type="application/json",
+            **self.auth_user_two
+        )
+        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
     def test_list_publications(self):
         kwargs = {"id": self.second_index.id}

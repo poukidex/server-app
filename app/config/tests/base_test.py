@@ -10,6 +10,9 @@ from ninja import Schema
 from orjson import orjson
 from userauth.models import User
 
+from index.models import Index, Proposition, Publication
+from index.schemas import ValidationMode
+
 
 class BaseTest(TestCase):
     user_one: AbstractUser
@@ -19,6 +22,12 @@ class BaseTest(TestCase):
     user_two_pwd: str
 
     previous_level: int
+
+    second_index: Index
+    first_index: Index
+
+    second_index_publication_1: Publication
+    second_index_publication_2: Publication
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -44,8 +53,51 @@ class BaseTest(TestCase):
             password=cls.user_two_pwd,
             email="user-two@picsellia.com",
         )
+
         cls.auth_user_one = cls._generate_auth_user(cls, cls.user_one)
         cls.auth_user_two = cls._generate_auth_user(cls, cls.user_two)
+
+        cls.first_index = Index.objects.create(
+            creator=cls.user_one,
+            name="first-index",
+            description="some",
+            validation_mode=ValidationMode.Manual,
+        )
+
+        cls.second_index = Index.objects.create(
+            creator=cls.user_one,
+            name="second-index",
+            description="some",
+            validation_mode=ValidationMode.Manual,
+        )
+
+        cls.second_index_publication_1 = Publication.objects.create(
+            index=cls.second_index,
+            name="some-name",
+            description="description",
+            object_name="object_name",
+        )
+
+        cls.second_index_publication_2 = Publication.objects.create(
+            index=cls.second_index,
+            name="some-name2",
+            description="description",
+            object_name="object_name",
+        )
+
+        cls.second_index_publication_2_proposition_1 = Proposition.objects.create(
+            publication=cls.second_index_publication_2,
+            user=cls.user_one,
+            comment="Random comment",
+            object_name="some object_name",
+        )
+
+        cls.second_index_publication_2_proposition_2 = Proposition.objects.create(
+            publication=cls.second_index_publication_2,
+            user=cls.user_two,
+            comment="Random comment of user two",
+            object_name="some object_name",
+        )
 
     @classmethod
     def tearDownClass(cls) -> None:

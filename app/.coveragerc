@@ -1,0 +1,20 @@
+[run]
+branch = False
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+
+omit =
+    **/__init__.py
+    **/**/__init__.py
+    **/tests/*.py
+    core/api/tests/*.py
+
+include =
+    index/api/*.py
+    userauth/api/*.py
+
+[html]
+directory = htmlcov

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import uuid
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -8,9 +6,10 @@ from django.utils.translation import gettext_lazy as _
 from django_resized import ResizedImageField
 from userauth.utils import upload_to
 
+from index.utils import check_object
+
 
 class UserManager(BaseUserManager):
-
     use_in_migrations = True
 
     def _create_user(
@@ -21,6 +20,9 @@ class UserManager(BaseUserManager):
 
         user: AbstractUser = self.model(username=username, **extra_fields)
         user.set_password(password)
+
+        check_object(user)
+
         user.save(using=self._db)
         return user
 

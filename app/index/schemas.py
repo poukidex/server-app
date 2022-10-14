@@ -18,6 +18,7 @@ class ApprobationSchema(Schema):
 
 class ImageUploadInput(Schema):
     filename: str
+    content_type: str
 
 
 class ImageUploadSchema(Schema):

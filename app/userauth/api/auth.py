@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta, timezone
+from http import HTTPStatus
 
 import jwt
 from config.exceptions import UnauthorizedException
@@ -14,6 +15,7 @@ router = Router()
 @router.post(
     "/login",
     response={200: TokenSchema},
+    url_name="login",
     auth=None,
 )
 def login(request, infos: ConnectionInfos):
@@ -27,21 +29,19 @@ def login(request, infos: ConnectionInfos):
         logging.error(f"Tried to log in {infos.username} but password not matching")
         raise UnauthorizedException()
 
+    if JWT_KEY is None:  # pragma: no cover
+        logging.critical("JWT KEY is None.")
+        raise UnauthorizedException()
+
     try:
-        jwt_signing_key = JWT_KEY
-
-        if jwt_signing_key is None:
-            logging.critical("JWT KEY is None.")
-            raise UnauthorizedException()
-
         delta = float(JWT_EXPIRES_IN)
         expires_in = datetime.now(tz=timezone.utc) + timedelta(seconds=delta)
         token = jwt.encode(
             {"user_id": str(user.id), "exp": expires_in},
-            jwt_signing_key,
+            JWT_KEY,
             algorithm="HS256",
         )
-    except jwt.PyJWTError:
+    except jwt.PyJWTError:  # pragma: no cover
         raise UnauthorizedException()
 
-    return {"jwt": token}
+    return HTTPStatus.OK, TokenSchema(jwt=token)

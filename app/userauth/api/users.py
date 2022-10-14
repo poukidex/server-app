@@ -9,12 +9,14 @@ from userauth.schemas import UserInput, UserSchema
 router = Router()
 
 
-@router.get(path="", response={HTTPStatus.OK: list[UserSchema]})
+@router.get(path="", url_name="users", response={HTTPStatus.OK: list[UserSchema]})
 def list_users(request):
     return HTTPStatus.OK, User.objects.filter(is_superuser=False).all()
 
 
-@router.post(path="", response={HTTPStatus.CREATED: UserSchema}, auth=None)
+@router.post(
+    path="", url_name="users", response={HTTPStatus.CREATED: UserSchema}, auth=None
+)
 def create_user(request, payload: UserInput):
     if (
         payload.creation_token_password is None
