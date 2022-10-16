@@ -7,26 +7,21 @@ from config.exceptions import UnauthorizedException
 from config.settings import JWT_EXPIRES_IN, JWT_KEY
 from ninja import Router
 from userauth.models import User
-from userauth.schemas import ConnectionInfos, TokenSchema
+from userauth.schemas import TokenSchema
+from django.contrib.auth import authenticate
 
 router = Router()
 
-
 @router.post(
     "/login",
-    response={200: TokenSchema},
+    response={HTTPStatus.OK: TokenSchema},
     url_name="login",
     auth=None,
+    operation_id="sign_in"
 )
-def login(request, infos: ConnectionInfos):
-    try:
-        user: User = User.objects.get(username=infos.username)
-    except Exception:
-        logging.error(f"Tried to log in {infos.username} but not found")
-        raise UnauthorizedException()
-
-    if not user.check_password(infos.password):
-        logging.error(f"Tried to log in {infos.username} but password not matching")
+def login(request, username: str, password: str):
+    user: User = authenticate(username=username, password=password)
+    if not user:
         raise UnauthorizedException()
 
     if JWT_KEY is None:  # pragma: no cover

@@ -1,8 +1,10 @@
 from http import HTTPStatus
 from uuid import UUID
-
+from typing import List
 from config.exceptions import ForbiddenException
 from ninja import Router
+from ninja.pagination import paginate
+from config.pagination import OverpoweredPagination
 
 from index.models import Index, Publication
 from index.schemas import (
@@ -18,9 +20,10 @@ from index.utils import check_object, update_object_from_schema
 router = Router()
 
 
-@router.get(path="", response={HTTPStatus.OK: list[IndexSchema]}, url_name="indexes")
+@router.get(path="", response={HTTPStatus.OK: list[IndexSchema]}, url_name="indexes", operation_id="get_collection_list")
+@paginate(OverpoweredPagination)
 def list_indexes(request):
-    return HTTPStatus.OK, Index.objects.all()
+    return Index.objects.all()
 
 
 @router.post(
