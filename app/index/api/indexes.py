@@ -1,19 +1,23 @@
 from http import HTTPStatus
 from uuid import UUID
-from typing import List
 from config.exceptions import ForbiddenException
 from ninja import Router
 from ninja.pagination import paginate
 from config.pagination import OverpoweredPagination
+from config.exceptions import ConflictException
 
+from config.external_client import s3_client
 from index.models import Index, Publication
 from index.schemas import (
     ExtendedIndexSchema,
     ExtendedPublicationSchema,
+    PublicationSchema,
     IndexInput,
     IndexSchema,
     IndexUpdate,
     PublicationInput,
+    ImageUploadInput,
+    ImageUploadSchema,
 )
 from index.utils import check_object, update_object_from_schema
 
@@ -27,13 +31,14 @@ def list_indexes(request):
 
 
 @router.post(
-    path="", response={HTTPStatus.CREATED: ExtendedIndexSchema}, url_name="indexes"
+    path="", response={HTTPStatus.CREATED: ExtendedIndexSchema}, url_name="indexes", operation_id="create_collection"
 )
 def create_index(request, payload: IndexInput):
+    if Index.objects.filter(name=payload.name).exists():
+        raise ConflictException()
+
     index = Index(creator=request.user, **payload.dict())
-
     check_object(index)
-
     index.save()
 
     return HTTPStatus.CREATED, index
@@ -60,7 +65,7 @@ def update_index(request, id: UUID, payload: IndexUpdate):
     return HTTPStatus.OK, index
 
 
-@router.delete(path="/{id}", response={HTTPStatus.NO_CONTENT: None}, url_name="index")
+@router.delete(path="/{id}", response={HTTPStatus.NO_CONTENT: None}, url_name="index", operation_id="delete_collection")
 def delete_index(request, id: UUID):
     index: Index = Index.objects.get(id=id)
 
@@ -76,6 +81,7 @@ def delete_index(request, id: UUID):
     path="/{id}/publications",
     response={HTTPStatus.CREATED: ExtendedPublicationSchema},
     url_name="index_publications",
+    operation_id="create_item"
 )
 def add_publication(request, id: UUID, payload: PublicationInput):
     index: Index = Index.objects.get(id=id)
@@ -92,10 +98,30 @@ def add_publication(request, id: UUID, payload: PublicationInput):
     return HTTPStatus.CREATED, publication
 
 
+@router.post(
+    path="/{id}/publications/upload",
+    url_name="index_publications_upload",
+    response={HTTPStatus.OK: ImageUploadSchema},
+    operation_id="generate_item_presigned_url"
+)
+def generate_presigned_url_for_upload(request, id: UUID, payload: ImageUploadInput):
+    index: Index = Index.objects.get(id=id)
+
+    object_name = s3_client.generate_object_name(str(index.id), payload.filename)
+
+    presigned_url = s3_client.generate_presigned_upload(
+        object_name, payload.content_type
+    )
+
+    return ImageUploadSchema(object_name=object_name, presigned_url=presigned_url)
+
+
 @router.get(
     path="/{id}/publications",
-    response={HTTPStatus.OK: list[ExtendedPublicationSchema]},
+    response={HTTPStatus.OK: list[PublicationSchema]},
     url_name="index_publications",
+    operation_id="get_item_list"
 )
+@paginate(OverpoweredPagination)
 def list_publications(request, id: UUID):
-    return HTTPStatus.OK, Publication.objects.filter(index_id=id)
+    return Publication.objects.filter(index_id=id)

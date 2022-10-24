@@ -21,9 +21,14 @@ class ImageUploadInput(Schema):
     content_type: str
 
 
+class PresignedUrlFile(Schema):
+    url: str
+    fields: dict[str, str]
+
+
 class ImageUploadSchema(Schema):
     object_name: str
-    presigned_url: str
+    presigned_url: PresignedUrlFile
 
 
 class PropositionInput(Schema):
@@ -61,6 +66,7 @@ class PublicationSchema(PublicationInput):
     id: UUID
     created_at: datetime
     object_name: str
+    presigned_url: str
 
 
 class ExtendedPublicationSchema(PublicationSchema):

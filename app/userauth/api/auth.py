@@ -24,19 +24,18 @@ def login(request, username: str, password: str):
     if not user:
         raise UnauthorizedException()
 
-    if JWT_KEY is None:  # pragma: no cover
-        logging.critical("JWT KEY is None.")
-        raise UnauthorizedException()
+    jwt_token = generate_jwt(user)
+    return HTTPStatus.OK, TokenSchema(jwt=jwt_token)
 
+
+def generate_jwt(user: User):
     try:
         delta = float(JWT_EXPIRES_IN)
         expires_in = datetime.now(tz=timezone.utc) + timedelta(seconds=delta)
-        token = jwt.encode(
+        return jwt.encode(
             {"user_id": str(user.id), "exp": expires_in},
             JWT_KEY,
             algorithm="HS256",
         )
     except jwt.PyJWTError:  # pragma: no cover
         raise UnauthorizedException()
-
-    return HTTPStatus.OK, TokenSchema(jwt=token)

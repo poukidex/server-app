@@ -60,6 +60,10 @@ class Publication(models.Model):
             ),
         ]
 
+    @property
+    def presigned_url(self):
+        return s3_client.generate_presigned_url(self.object_name)
+
 
 class Proposition(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True)
