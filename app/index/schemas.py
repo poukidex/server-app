@@ -60,6 +60,8 @@ class PublicationUpdate(Schema):
 
 class PublicationInput(PublicationUpdate):
     object_name: str
+    primary_color: Optional[str]
+    secondary_color: Optional[str]
 
 
 class PublicationSchema(PublicationInput):
@@ -67,6 +69,8 @@ class PublicationSchema(PublicationInput):
     created_at: datetime
     object_name: str
     presigned_url: str
+    primary_color: Optional[str]
+    secondary_color: Optional[str]
 
 
 class ExtendedPublicationSchema(PublicationSchema):

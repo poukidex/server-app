@@ -49,6 +49,9 @@ class Publication(models.Model):
     description = models.CharField(max_length=255)
     object_name = models.CharField(max_length=255)
 
+    primary_color = models.CharField(max_length=9, null=True, blank=True)
+    secondary_color = models.CharField(max_length=9, null=True, blank=True)
+
     def __str__(self):
         return f"Publication {self.name} of {self.index}"
 
