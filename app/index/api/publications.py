@@ -45,7 +45,10 @@ def update_publication(request, id: UUID, payload: PublicationUpdate):
 
 
 @router.delete(
-    path="/{id}", url_name="publication", response={HTTPStatus.NO_CONTENT: None}, operation_id="delete_item"
+    path="/{id}",
+    url_name="publication",
+    response={HTTPStatus.NO_CONTENT: None},
+    operation_id="delete_item",
 )
 def delete_publication(request, id: UUID):
     publication: Publication = Publication.objects.select_related("index").get(id=id)

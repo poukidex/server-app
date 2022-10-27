@@ -19,11 +19,11 @@ class TestAuth(BaseTest):
         expected_status: int,
         expected_user: AbstractUser = None,
     ):
-        data = {"username": username, "password": pwd}
+        # data = {"username": username, "password": pwd}
         kwargs = {}
         response = self.client.post(
-            reverse("api:login", kwargs=kwargs),
-            data=data,
+            reverse("api:login", kwargs=kwargs)
+            + f"?username={username}&password={pwd}",
             content_type="application/json",
         )
         self.assertEqual(response.status_code, expected_status)

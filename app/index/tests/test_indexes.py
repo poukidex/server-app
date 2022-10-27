@@ -23,7 +23,7 @@ class TestIndexes(BaseTest):
             reverse("api:indexes", kwargs=kwargs), **self.auth_user_one
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        content = response.json()
+        content = response.json()["items"]
         self.assertEqual(len(content), 2)
         for item in content:
             self.assertDictEqualsSchema(
@@ -147,7 +147,7 @@ class TestIndexes(BaseTest):
             reverse("api:index_publications", kwargs=kwargs), **self.auth_user_one
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        content = response.json()
+        content = response.json()["items"]
         self.assertEqual(len(content), 2)
         for item in content:
             self.assertDictEqualsSchema(

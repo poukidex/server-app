@@ -7,7 +7,7 @@ if settings.S3_ENV.lower() == "mock":
     s3_client = Mock(spec=S3Client)
     s3_client.generate_object_name.return_value = "object_name"
     s3_client.generate_presigned_url.return_value = "presigned_url"
-    s3_client.generate_presigned_upload.return_value = "presigned_url_upload"
+    s3_client.generate_presigned_upload.return_value = {"url": "some_url", "fields": {}}
 else:
     s3_client = S3Client(
         region_name=settings.AWS_REGION_NAME,
