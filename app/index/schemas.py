@@ -1,9 +1,11 @@
+import enum
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal, Union
 from uuid import UUID
 
 from django.db import models
 from ninja import Schema
+
 from userauth.schemas import UserSchema
 
 
@@ -60,8 +62,7 @@ class PublicationUpdate(Schema):
 
 class PublicationInput(PublicationUpdate):
     object_name: str
-    primary_color: Optional[str]
-    secondary_color: Optional[str]
+    dominant_colors: Optional[dict]
 
 
 class PublicationSchema(PublicationInput):
@@ -69,8 +70,7 @@ class PublicationSchema(PublicationInput):
     created_at: datetime
     object_name: str
     presigned_url: str
-    primary_color: Optional[str]
-    secondary_color: Optional[str]
+    dominant_colors: Optional[dict]
 
 
 class ExtendedPublicationSchema(PublicationSchema):
@@ -98,6 +98,7 @@ class IndexSchema(Schema):
     created_at: datetime
     creator_id: UUID
     validation_mode: ValidationMode
+    nb_items: Optional[int]
 
 
 class ExtendedIndexSchema(IndexSchema):

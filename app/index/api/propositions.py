@@ -15,6 +15,7 @@ router = Router()
     path="/{id}",
     url_name="proposition",
     response={HTTPStatus.OK: ExtendedPropositionSchema},
+    operation_id="get_capture"
 )
 def retrieve_proposition(request, id: UUID):
     return HTTPStatus.OK, Proposition.objects.get(id=id)
@@ -24,6 +25,7 @@ def retrieve_proposition(request, id: UUID):
     path="/{id}",
     url_name="proposition",
     response={HTTPStatus.OK: ExtendedPropositionSchema},
+    operation_id="update_capture"
 )
 def update_proposition(request, id: UUID, payload: PropositionUpdate):
     proposition: Proposition = Proposition.objects.select_related(

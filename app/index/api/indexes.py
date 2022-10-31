@@ -1,5 +1,8 @@
 from http import HTTPStatus
 from uuid import UUID
+
+from django.db.models import Count
+
 from config.exceptions import ForbiddenException
 from ninja import Router
 from ninja.pagination import paginate
@@ -27,7 +30,7 @@ router = Router()
 @router.get(path="", response={HTTPStatus.OK: list[IndexSchema]}, url_name="indexes", operation_id="get_collection_list")
 @paginate(OverpoweredPagination)
 def list_indexes(request):
-    return Index.objects.all()
+    return Index.objects.annotate(nb_items=Count('publications')).all()
 
 
 @router.post(
@@ -45,14 +48,14 @@ def create_index(request, payload: IndexInput):
 
 
 @router.get(
-    path="/{id}", response={HTTPStatus.OK: ExtendedIndexSchema}, url_name="index"
+    path="/{id}", response={HTTPStatus.OK: ExtendedIndexSchema}, url_name="index", operation_id="get_collection",
 )
 def retrieve_index(request, id: UUID):
     return HTTPStatus.OK, Index.objects.get(id=id)
 
 
 @router.put(
-    path="/{id}", response={HTTPStatus.OK: ExtendedIndexSchema}, url_name="index"
+    path="/{id}", response={HTTPStatus.OK: ExtendedIndexSchema}, url_name="index", operation_id="update_collection"
 )
 def update_index(request, id: UUID, payload: IndexUpdate):
     index: Index = Index.objects.get(id=id)

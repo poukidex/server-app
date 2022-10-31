@@ -23,6 +23,7 @@ router = Router()
     path="/{id}",
     url_name="publication",
     response={HTTPStatus.OK: ExtendedPublicationSchema},
+    operation_id="get_item",
 )
 def retrieve_publication(request, id: UUID):
     return HTTPStatus.OK, Publication.objects.get(id=id)
@@ -32,6 +33,7 @@ def retrieve_publication(request, id: UUID):
     path="/{id}",
     url_name="publication",
     response={HTTPStatus.OK: ExtendedPublicationSchema},
+    operation_id="update_item",
 )
 def update_publication(request, id: UUID, payload: PublicationUpdate):
     publication: Publication = Publication.objects.select_related("index").get(id=id)
@@ -65,6 +67,7 @@ def delete_publication(request, id: UUID):
     path="/{id}/propositions/upload",
     url_name="publication_propositions_upload",
     response={HTTPStatus.OK: ImageUploadSchema},
+    operation_id="generate_capture_presigned_url"
 )
 def generate_presigned_url_for_upload(request, id: UUID, payload: ImageUploadInput):
     publication: Publication = Publication.objects.get(id=id)
@@ -82,6 +85,7 @@ def generate_presigned_url_for_upload(request, id: UUID, payload: ImageUploadInp
     path="/{id}/propositions",
     url_name="publication_propositions",
     response={HTTPStatus.CREATED: ExtendedPropositionSchema},
+    operation_id="create_capture"
 )
 def add_proposition(request, id: UUID, payload: PropositionInput):
     publication: Publication = Publication.objects.get(id=id)
@@ -104,6 +108,7 @@ def add_proposition(request, id: UUID, payload: PropositionInput):
     path="/{id}/propositions",
     url_name="publication_propositions",
     response={HTTPStatus.OK: list[ExtendedPropositionSchema]},
+    operation_id="get_capture_list"
 )
 def list_propositions(request, id: UUID):
     return HTTPStatus.OK, Proposition.objects.filter(publication_id=id)
