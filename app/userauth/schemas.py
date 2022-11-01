@@ -17,10 +17,15 @@ class UserSchema(Schema):
     picture: Optional[str]
 
 
-class ConnectionInfos(Schema):
+class SignInInput(Schema):
     username: str
     password: str
 
 
-class TokenSchema(Schema):
-    jwt: str
+class SignInOutput(Schema):
+    id_token: str
+    access_token: str
+
+
+class RefreshAccessTokenOutput(Schema):
+    access_token: str

@@ -1,41 +1,55 @@
-import logging
-from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 
-import jwt
-from config.exceptions import UnauthorizedException
-from config.settings import JWT_EXPIRES_IN, JWT_KEY
+from config.authentication import JWTCoder, IDTokenBearer
+from config.exceptions import IncoherentInput
 from ninja import Router
-from userauth.models import User
-from userauth.schemas import TokenSchema
+from userauth.models import User, Token
+from userauth.schemas import SignInInput, SignInOutput, RefreshAccessTokenOutput
 from django.contrib.auth import authenticate
 
 router = Router()
 
+
 @router.post(
-    "/login",
-    response={HTTPStatus.OK: TokenSchema},
-    url_name="login",
+    "/sign-in",
     auth=None,
+    response={HTTPStatus.OK: SignInOutput},
+    url_name="sign-in",
     operation_id="sign_in"
 )
-def login(request, username: str, password: str):
-    user: User = authenticate(username=username, password=password)
+def sign_in(request, payload: SignInInput):
+    user: User = authenticate(username=payload.username, password=payload.password)
     if not user:
-        raise UnauthorizedException()
+        raise IncoherentInput()
 
-    jwt_token = generate_jwt(user)
-    return HTTPStatus.OK, TokenSchema(jwt=jwt_token)
+    token, _ = Token.objects.get_or_create(user=user)
+    access_token = JWTCoder.encode(token.key)
+    if access_token is None:
+        raise IncoherentInput()
+    return HTTPStatus.OK, SignInOutput(id_token=token.key, access_token=access_token)
 
 
-def generate_jwt(user: User):
-    try:
-        delta = float(JWT_EXPIRES_IN)
-        expires_in = datetime.now(tz=timezone.utc) + timedelta(seconds=delta)
-        return jwt.encode(
-            {"user_id": str(user.id), "exp": expires_in},
-            JWT_KEY,
-            algorithm="HS256",
-        )
-    except jwt.PyJWTError:  # pragma: no cover
-        raise UnauthorizedException()
+@router.post(
+    "/refresh-access-token",
+    auth=IDTokenBearer(),
+    response={HTTPStatus.OK: RefreshAccessTokenOutput},
+    url_name="refresh-access-token",
+    operation_id="refresh_access_token"
+)
+def refresh_access_token(request):
+    id_token = request.user.auth_token.key
+    access_token = JWTCoder.encode(id_token)
+    if access_token is None:
+        raise IncoherentInput()
+    return HTTPStatus.OK, RefreshAccessTokenOutput(access_token=access_token)
+
+
+@router.post(
+    "/sign-out",
+    response={HTTPStatus.NO_CONTENT: None},
+    url_name="sign-out",
+    operation_id="sign_out"
+)
+def sign_out(request):
+    Token.objects.get(user=request.user).delete()
+    return HTTPStatus.NO_CONTENT, None

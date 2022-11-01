@@ -14,10 +14,10 @@ def check_object(new_object: models.Model):
         raise IncoherentInput()
 
     try:
-        new_object.validate_unique()
-    except ValidationError:
+        new_object.validate_constraints()
+    except ValidationError as error:
         logging.exception(f"Validation error for object {new_object}")
-        raise ConflictException()
+        raise ConflictException(detail=error.messages)
 
 
 def update_object_from_schema(updated_object: models.Model, payload: Schema):

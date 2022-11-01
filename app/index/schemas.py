@@ -33,22 +33,20 @@ class ImageUploadSchema(Schema):
     presigned_url: PresignedUrlFile
 
 
-class PropositionInput(Schema):
-    object_name: str
-    comment: str
-
-
 class PropositionUpdate(Schema):
     comment: str
 
 
-class PropositionSchema(Schema):
+class PropositionInput(PropositionUpdate):
+    object_name: str
+    dominant_colors: Optional[dict]
+
+
+class PropositionSchema(PropositionInput):
     id: UUID
     created_at: datetime
     user_id: UUID
-    object_name: str
     presigned_url: str
-    comment: str
 
 
 class ExtendedPropositionSchema(PropositionSchema):
@@ -68,9 +66,7 @@ class PublicationInput(PublicationUpdate):
 class PublicationSchema(PublicationInput):
     id: UUID
     created_at: datetime
-    object_name: str
     presigned_url: str
-    dominant_colors: Optional[dict]
 
 
 class ExtendedPublicationSchema(PublicationSchema):

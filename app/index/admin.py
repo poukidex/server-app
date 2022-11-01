@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from userauth.models import User
+from userauth.models import User, Token
 
 from index.models import Index, Proposition, Publication
 
@@ -11,6 +11,8 @@ admin.site.register(Publication)
 admin.site.register(Proposition)
 
 admin.site.enable_nav_sidebar = False
+
+admin.site.register(Token)
 
 
 @admin.register(User)

@@ -83,6 +83,7 @@ class Proposition(models.Model):
     comment = models.CharField(max_length=255)
 
     object_name = models.CharField(max_length=255)
+    dominant_colors = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return f"Proposition of {self.user} on {self.publication}"

@@ -1,7 +1,7 @@
 import logging
 from http import HTTPStatus
 
-from config.authentication import JWTBearer
+from config.authentication import AccessTokenBearer
 from config.exceptions import IndexException
 from config.renderer import ORJSONRenderer
 from django.core.exceptions import FieldError, ObjectDoesNotExist
@@ -13,7 +13,7 @@ from index.api.indexes import router as index_router
 from index.api.propositions import router as proposition_router
 from index.api.publications import router as publication_router
 
-api = NinjaAPI(auth=JWTBearer(), urls_namespace="api", renderer=ORJSONRenderer())
+api = NinjaAPI(auth=AccessTokenBearer(), urls_namespace="api", renderer=ORJSONRenderer())
 
 api.add_router("indexes", index_router, tags=["index"])
 api.add_router("publications", publication_router, tags=["publication"])

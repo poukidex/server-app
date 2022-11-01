@@ -4,6 +4,7 @@ from uuid import UUID
 from config.exceptions import ForbiddenException
 from config.external_client import s3_client
 from ninja import Router
+from ninja.pagination import paginate
 
 from index.models import Proposition, Publication
 from index.schemas import (
@@ -13,8 +14,10 @@ from index.schemas import (
     ImageUploadSchema,
     PropositionInput,
     PublicationUpdate,
+    PropositionSchema
 )
 from index.utils import check_object, update_object_from_schema
+from config.pagination import OverpoweredPagination
 
 router = Router()
 
@@ -107,8 +110,9 @@ def add_proposition(request, id: UUID, payload: PropositionInput):
 @router.get(
     path="/{id}/propositions",
     url_name="publication_propositions",
-    response={HTTPStatus.OK: list[ExtendedPropositionSchema]},
+    response={HTTPStatus.OK: list[PropositionSchema]},
     operation_id="get_capture_list"
 )
+@paginate(OverpoweredPagination)
 def list_propositions(request, id: UUID):
-    return HTTPStatus.OK, Proposition.objects.filter(publication_id=id)
+    return Proposition.objects.filter(publication_id=id)

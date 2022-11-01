@@ -7,7 +7,6 @@ from config.exceptions import ForbiddenException
 from ninja import Router
 from ninja.pagination import paginate
 from config.pagination import OverpoweredPagination
-from config.exceptions import ConflictException
 
 from config.external_client import s3_client
 from index.models import Index, Publication
@@ -37,9 +36,6 @@ def list_indexes(request):
     path="", response={HTTPStatus.CREATED: ExtendedIndexSchema}, url_name="indexes", operation_id="create_collection"
 )
 def create_index(request, payload: IndexInput):
-    if Index.objects.filter(name=payload.name).exists():
-        raise ConflictException()
-
     index = Index(creator=request.user, **payload.dict())
     check_object(index)
     index.save()
@@ -92,7 +88,7 @@ def add_publication(request, id: UUID, payload: PublicationInput):
     if index.creator != request.user:
         raise ForbiddenException()
 
-    publication: Publication = Publication(index=index, **payload.dict())
+    publication: Publication = Publication(index_id=id, **payload.dict())
 
     check_object(publication)
 
