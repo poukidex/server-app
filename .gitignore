@@ -121,7 +121,7 @@ celerybeat.pid
 
 # Environments
 .env
-.env
+.env.prod
 .venv
 env/
 venv/
@@ -157,3 +157,5 @@ cython_debug/
 **/.idea
 
 .DS_Store
+prod.yml
+prod.nginx.conf
