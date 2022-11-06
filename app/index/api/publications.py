@@ -94,10 +94,9 @@ def add_proposition(request, id: UUID, payload: PropositionInput):
     publication: Publication = Publication.objects.get(id=id)
 
     proposition: Proposition = Proposition(
-        publication=publication,
+        publication_id=id,
         user=request.user,
-        object_name=payload.object_name,
-        comment=payload.comment,
+        **payload.dict()
     )
 
     check_object(proposition)

@@ -4,11 +4,12 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from userauth.models import User, Token
 
-from index.models import Index, Proposition, Publication
+from index.models import Index, Proposition, Publication, Approbation
 
 admin.site.register(Index)
 admin.site.register(Publication)
 admin.site.register(Proposition)
+admin.site.register(Approbation)
 
 admin.site.enable_nav_sidebar = False
 

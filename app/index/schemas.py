@@ -4,7 +4,7 @@ from typing import Optional, Literal, Union
 from uuid import UUID
 
 from django.db import models
-from ninja import Schema
+from ninja import Schema, Field
 
 from userauth.schemas import UserSchema
 
@@ -46,11 +46,14 @@ class PropositionSchema(PropositionInput):
     id: UUID
     created_at: datetime
     user_id: UUID
+    user_username: str = Field(alias="user.username")
     presigned_url: str
+    nb_likes: Optional[int]
+    nb_dislikes: Optional[int]
 
 
 class ExtendedPropositionSchema(PropositionSchema):
-    approbations: list[ApprobationSchema]
+    pass
 
 
 class PublicationUpdate(Schema):

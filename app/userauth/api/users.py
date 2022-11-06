@@ -30,3 +30,8 @@ def create_user(request, payload: UserInput):
     )
 
     return HTTPStatus.CREATED, user
+
+
+@router.get(path="/me", url_name="my_user", response={HTTPStatus.OK: UserSchema}, operation_id="get_my_user")
+def get_my_user(request):
+    return request.user
