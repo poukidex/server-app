@@ -28,6 +28,16 @@ class TestUsers(BaseTest):
                 ),
             )
 
+    def test_get_my_user(self):
+        response = self.client.get(reverse("api:my_user"), **self.auth_user_one)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        content = response.json()
+        self.assertEqual(content["id"], str(self.user_one.id))
+        self.assertDictEqualsSchema(
+            content,
+            UserSchema.from_orm(User.objects.get(id=content["id"], is_superuser=False)),
+        )
+
     def _do_test_create_user(
         self, username: str, email: str, expected_status: int, false_token: bool = False
     ):

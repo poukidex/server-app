@@ -1,11 +1,9 @@
-import enum
 from datetime import datetime
-from typing import Optional, Literal, Union
+from typing import Optional
 from uuid import UUID
 
 from django.db import models
-from ninja import Schema, Field
-
+from ninja import Field, Schema
 from userauth.schemas import UserSchema
 
 
@@ -48,8 +46,8 @@ class PropositionSchema(PropositionInput):
     user_id: UUID
     user_username: str = Field(alias="user.username")
     presigned_url: str
-    nb_likes: Optional[int]
-    nb_dislikes: Optional[int]
+    nb_likes: Optional[int] = 0
+    nb_dislikes: Optional[int] = 0
 
 
 class ExtendedPropositionSchema(PropositionSchema):

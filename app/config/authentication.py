@@ -1,12 +1,12 @@
 import logging
 from abc import ABC
-from datetime import timezone, timedelta, datetime
+from datetime import datetime, timedelta, timezone
 
 import jwt
 from django.conf import settings
 from django.http import HttpRequest
 from ninja.security import HttpBearer
-from userauth.models import User, Token
+from userauth.models import Token, User
 
 logger = logging.getLogger(__name__)
 
@@ -43,18 +43,22 @@ class JWTCoder:
                 settings.JWT_KEY,
                 algorithm="HS256",
             )
-        except jwt.PyJWTError:
+        except jwt.PyJWTError:  # pragma: no cover
             logger.exception("JWT error")
+            return None
 
     @classmethod
     def decode(cls, access_token: str) -> str | None:
         try:
-            payload = jwt.decode(jwt=access_token, key=settings.JWT_KEY, algorithms=["HS256"])
-        except jwt.exceptions.ExpiredSignatureError:
-            logger.info("JWT expired")
-        except jwt.exceptions.DecodeError:
-            logger.exception("JWT decode error")
-        except jwt.PyJWTError:
-            logger.exception("JWT error")
-        else:
+            payload = jwt.decode(
+                jwt=access_token, key=settings.JWT_KEY, algorithms=["HS256"]
+            )
             return payload.get("id_token", None)
+        except jwt.exceptions.ExpiredSignatureError:  # pragma: no cover
+            logger.info("JWT expired")
+        except jwt.exceptions.DecodeError:  # pragma: no cover
+            logger.exception("JWT decode error")
+        except jwt.PyJWTError:  # pragma: no cover
+            logger.exception("JWT error")
+
+        return None

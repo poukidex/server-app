@@ -110,12 +110,8 @@ class TestPropostions(BaseTest):
 
         if expected_code == HTTPStatus.OK:
             content = response.json()
-            self.assertDictEqualsSchema(
-                content,
-                ExtendedPropositionSchema.from_orm(
-                    Proposition.objects.get(id=content["id"])
-                ),
-            )
+            self.assertEqual(content["approved"], approval)
+            self.assertEqual(content["user"]["id"], str(user.id))
             approbation = Approbation.objects.get(proposition=proposition, user=user)
             self.assertEqual(approbation.approved, approval)
 
@@ -145,3 +141,33 @@ class TestPropostions(BaseTest):
             self.user_one,
             HTTPStatus.BAD_REQUEST,
         )
+
+    def test_get_my_approbation(self):
+        Approbation.objects.create(
+            proposition=self.second_index_publication_2_proposition_2,
+            user=self.user_one,
+            approved=True,
+        )
+
+        kwargs = {"id": self.second_index_publication_2_proposition_2.id}
+        response = self.client.get(
+            reverse("api:approbation", kwargs=kwargs), **self.auth_user_one
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        content = response.json()
+        self.assertEqual(content["approved"], True)
+        self.assertEqual(content["user"]["id"], str(self.user_one.id))
+
+    def test_delete_my_approbation(self):
+        Approbation.objects.create(
+            proposition=self.second_index_publication_2_proposition_2,
+            user=self.user_one,
+            approved=True,
+        )
+
+        kwargs = {"id": self.second_index_publication_2_proposition_2.id}
+        response = self.client.delete(
+            reverse("api:approbation", kwargs=kwargs), **self.auth_user_one
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NO_CONTENT)

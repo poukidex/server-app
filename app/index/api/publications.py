@@ -2,10 +2,11 @@ from http import HTTPStatus
 from uuid import UUID
 
 from config.exceptions import ForbiddenException
-from config.external_client import s3_client
+from config.pagination import OverpoweredPagination
 from ninja import Router
 from ninja.pagination import paginate
 
+from index.api.utils import generate_presigned_url_for_object
 from index.models import Proposition, Publication
 from index.schemas import (
     ExtendedPropositionSchema,
@@ -13,11 +14,10 @@ from index.schemas import (
     ImageUploadInput,
     ImageUploadSchema,
     PropositionInput,
+    PropositionSchema,
     PublicationUpdate,
-    PropositionSchema
 )
 from index.utils import check_object, update_object_from_schema
-from config.pagination import OverpoweredPagination
 
 router = Router()
 
@@ -70,33 +70,27 @@ def delete_publication(request, id: UUID):
     path="/{id}/propositions/upload",
     url_name="publication_propositions_upload",
     response={HTTPStatus.OK: ImageUploadSchema},
-    operation_id="generate_capture_presigned_url"
+    operation_id="generate_capture_presigned_url",
 )
 def generate_presigned_url_for_upload(request, id: UUID, payload: ImageUploadInput):
     publication: Publication = Publication.objects.get(id=id)
-
-    object_name = s3_client.generate_object_name(str(publication.id), payload.filename)
-
-    presigned_url = s3_client.generate_presigned_upload(
-        object_name, payload.content_type
+    return generate_presigned_url_for_object(
+        publication, payload.filename, payload.content_type
     )
-
-    return ImageUploadSchema(object_name=object_name, presigned_url=presigned_url)
 
 
 @router.post(
     path="/{id}/propositions",
     url_name="publication_propositions",
     response={HTTPStatus.CREATED: ExtendedPropositionSchema},
-    operation_id="create_capture"
+    operation_id="create_capture",
 )
 def add_proposition(request, id: UUID, payload: PropositionInput):
-    publication: Publication = Publication.objects.get(id=id)
+    # Assert publication exists
+    Publication.objects.get(id=id)
 
     proposition: Proposition = Proposition(
-        publication_id=id,
-        user=request.user,
-        **payload.dict()
+        publication_id=id, user=request.user, **payload.dict()
     )
 
     check_object(proposition)
@@ -110,7 +104,7 @@ def add_proposition(request, id: UUID, payload: PropositionInput):
     path="/{id}/propositions",
     url_name="publication_propositions",
     response={HTTPStatus.OK: list[PropositionSchema]},
-    operation_id="get_capture_list"
+    operation_id="get_capture_list",
 )
 @paginate(OverpoweredPagination)
 def list_propositions(request, id: UUID):

@@ -1,5 +1,5 @@
+import uuid
 from http import HTTPStatus
-from unittest import skip
 
 from config.tests.base_test import BaseTest
 from django.urls import reverse
@@ -73,6 +73,20 @@ class TestPublications(BaseTest):
         )
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
+    def test_create_proposition_unknown_publication(self):
+        data = {
+            "comment": "some comment of this proposition",
+            "object_name": "an object_name somewhere",
+        }
+        kwargs = {"id": uuid.uuid4()}
+        response = self.client.post(
+            reverse("api:publication_propositions", kwargs=kwargs),
+            data=data,
+            content_type="application/json",
+            **self.auth_user_one
+        )
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+
     def test_create_proposition(self):
         data = {
             "comment": "some comment of this proposition",
@@ -94,8 +108,6 @@ class TestPublications(BaseTest):
             ),
         )
 
-    # TODO: Fix check_object does not raise error on validate unique
-    @skip
     def test_create_proposition_conflict(self):
         data = {
             "comment": "some comment of this proposition",
@@ -116,7 +128,7 @@ class TestPublications(BaseTest):
             reverse("api:publication_propositions", kwargs=kwargs), **self.auth_user_one
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        content = response.json()
+        content = response.json()["items"]
         self.assertEqual(len(content), 2)
         for item in content:
             self.assertDictEqualsSchema(
@@ -126,7 +138,7 @@ class TestPublications(BaseTest):
                 ),
             )
 
-    def test_generate_presigned_url_for_upload(self):
+    def test_generate_presigned_url_for_upload_publications(self):
         data = {"filename": "image.png", "content_type": "application/png"}
 
         kwargs = {"id": self.second_index_publication_1.id}

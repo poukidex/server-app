@@ -1,14 +1,12 @@
 import json
 import logging
-from datetime import datetime, timedelta, timezone
 
-import jwt
-from config import settings
+from config.authentication import JWTCoder
 from django.contrib.auth.models import AbstractUser
 from django.test import TestCase
 from ninja import Schema
 from orjson import orjson
-from userauth.models import User
+from userauth.models import Token, User
 
 from index.models import Index, Proposition, Publication
 from index.schemas import ValidationMode
@@ -17,9 +15,11 @@ from index.schemas import ValidationMode
 class BaseTest(TestCase):
     user_one: AbstractUser
     user_one_pwd: str
+    token_one: Token
 
     user_two: AbstractUser
     user_two_pwd: str
+    token_two: Token
 
     previous_level: int
 
@@ -48,14 +48,16 @@ class BaseTest(TestCase):
             password=cls.user_one_pwd,
             email="user-one@picsellia.com",
         )
+        cls.token_one = Token.objects.create(user=cls.user_one)
         cls.user_two = User.objects.create_user(
             username="user-two",
             password=cls.user_two_pwd,
             email="user-two@picsellia.com",
         )
+        cls.token_two = Token.objects.create(user=cls.user_two)
 
-        cls.auth_user_one = cls._generate_auth_user(cls, cls.user_one)
-        cls.auth_user_two = cls._generate_auth_user(cls, cls.user_two)
+        cls.auth_user_one = cls._generate_auth_user(cls, cls.token_one)
+        cls.auth_user_two = cls._generate_auth_user(cls, cls.token_two)
 
         cls.first_index = Index.objects.create(
             creator=cls.user_one,
@@ -116,13 +118,9 @@ class BaseTest(TestCase):
             json.loads(orjson.dumps(schema.dict())),
         )
 
-    def _generate_auth_user(self, user: AbstractUser):
-        expires_in = datetime.now(tz=timezone.utc) + timedelta(
-            seconds=float(settings.JWT_EXPIRES_IN)
-        )
-        token = jwt.encode(
-            {"user_id": str(user.id), "exp": expires_in},
-            settings.JWT_KEY,
-            algorithm="HS256",
-        )
+    def _generate_auth_user(self, token: Token):
+        token = JWTCoder.encode(id_token=token.key)
         return {"HTTP_AUTHORIZATION": f"Bearer {token}"}
+
+    def _generate_auth_user_by_token(self, token: Token):
+        return {"HTTP_AUTHORIZATION": f"Bearer {token.key}"}

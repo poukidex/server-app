@@ -76,10 +76,13 @@ class Token(models.Model):
     """
     The default authorization token model.
     """
+
     key = models.CharField(_("Key"), max_length=40, primary_key=True)
     user = models.OneToOneField(
-        User, related_name='auth_token',
-        on_delete=models.CASCADE, verbose_name=_("User")
+        User,
+        related_name="auth_token",
+        on_delete=models.CASCADE,
+        verbose_name=_("User"),
     )
     created = models.DateTimeField(_("Created"), auto_now_add=True)
 
