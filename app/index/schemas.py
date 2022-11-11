@@ -68,6 +68,7 @@ class PublicationSchema(PublicationInput):
     id: UUID
     created_at: datetime
     presigned_url: str
+    nb_captures: Optional[int]
 
 
 class ExtendedPublicationSchema(PublicationSchema):
@@ -100,4 +101,4 @@ class IndexSchema(Schema):
 
 
 class ExtendedIndexSchema(IndexSchema):
-    publications: list[PublicationSchema]
+    pass

@@ -136,4 +136,4 @@ def generate_presigned_url_for_upload(request, id: UUID, payload: ImageUploadInp
 )
 @paginate(OverpoweredPagination)
 def list_publications(request, id: UUID):
-    return Publication.objects.filter(index_id=id)
+    return Publication.objects.annotate(nb_captures=Count("propositions")).filter(index_id=id)

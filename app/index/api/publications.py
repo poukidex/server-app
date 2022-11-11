@@ -1,6 +1,8 @@
 from http import HTTPStatus
 from uuid import UUID
 
+from django.db.models import Count, Q
+
 from config.exceptions import ForbiddenException
 from config.pagination import OverpoweredPagination
 from ninja import Router
@@ -29,7 +31,7 @@ router = Router()
     operation_id="get_item",
 )
 def retrieve_publication(request, id: UUID):
-    return HTTPStatus.OK, Publication.objects.get(id=id)
+    return HTTPStatus.OK, Publication.objects.annotate(nb_captures=Count("propositions")).get(id=id)
 
 
 @router.put(
@@ -101,6 +103,16 @@ def add_proposition(request, id: UUID, payload: PropositionInput):
 
 
 @router.get(
+    path="/{id}/proposition",
+    url_name="my_proposition",
+    response={HTTPStatus.OK: ExtendedPropositionSchema},
+    operation_id="get_my_capture",
+)
+def retrieve_my_proposition(request, id: UUID):
+    return HTTPStatus.OK, Proposition.objects.get(publication_id=id, user=request.user)
+
+
+@router.get(
     path="/{id}/propositions",
     url_name="publication_propositions",
     response={HTTPStatus.OK: list[PropositionSchema]},
@@ -108,4 +120,6 @@ def add_proposition(request, id: UUID, payload: PropositionInput):
 )
 @paginate(OverpoweredPagination)
 def list_propositions(request, id: UUID):
-    return Proposition.objects.filter(publication_id=id)
+    return Proposition.objects.annotate(
+        nb_likes=Count("approbations", filter=Q(approbations__approved=True)),
+    ).filter(publication_id=id)
