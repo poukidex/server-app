@@ -94,6 +94,7 @@ class IndexSchema(Schema):
     description: str
     created_at: datetime
     creator_id: UUID
+    creator_username: str = Field(alias="creator.username")
     validation_mode: ValidationMode
     nb_items: Optional[int]
 

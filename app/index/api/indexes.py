@@ -57,7 +57,7 @@ def create_index(request, payload: IndexInput):
     operation_id="get_collection",
 )
 def retrieve_index(request, id: UUID):
-    return HTTPStatus.OK, Index.objects.get(id=id)
+    return HTTPStatus.OK, Index.objects.annotate(nb_items=Count("publications")).get(id=id)
 
 
 @router.put(
