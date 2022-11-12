@@ -68,7 +68,7 @@ class PublicationSchema(PublicationInput):
     id: UUID
     created_at: datetime
     presigned_url: str
-    nb_captures: Optional[int]
+    nb_captures: Optional[int] = 0
 
 
 class ExtendedPublicationSchema(PublicationSchema):
@@ -97,7 +97,7 @@ class IndexSchema(Schema):
     creator_id: UUID
     creator_username: str = Field(alias="creator.username")
     validation_mode: ValidationMode
-    nb_items: Optional[int]
+    nb_items: Optional[int] = 0
 
 
 class ExtendedIndexSchema(IndexSchema):

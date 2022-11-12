@@ -2,6 +2,7 @@ import uuid
 from http import HTTPStatus
 
 from config.tests.base_test import BaseTest
+from django.db.models import Count
 from django.urls import reverse
 
 from index.models import Proposition, Publication
@@ -20,9 +21,11 @@ class TestPublications(BaseTest):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
-        self.assertDictEqualsSchema(
-            content, ExtendedPublicationSchema.from_orm(self.second_index_publication_2)
+
+        pub = Publication.objects.annotate(nb_captures=Count("propositions")).get(
+            id=self.second_index_publication_2.id
         )
+        self.assertDictEqualsSchema(content, ExtendedPublicationSchema.from_orm(pub))
 
     def test_update_publication(self):
         data = {"name": "new-name", "description": "description"}
@@ -152,3 +155,17 @@ class TestPublications(BaseTest):
         content = response.json()
         self.assertIsNotNone(content["object_name"])
         self.assertIsNotNone(content["presigned_url"])
+
+    def test_retrieve_my_proposition(self):
+        kwargs = {"id": self.second_index_publication_2.id}
+        response = self.client.get(
+            reverse("api:my_proposition", kwargs=kwargs), **self.auth_user_one
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        content = response.json()
+        self.assertDictEqualsSchema(
+            content,
+            ExtendedPropositionSchema.from_orm(
+                self.second_index_publication_2_proposition_1
+            ),
+        )

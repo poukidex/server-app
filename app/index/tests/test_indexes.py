@@ -159,7 +159,9 @@ class TestIndexes(BaseTest):
             self.assertDictEqualsSchema(
                 item,
                 ExtendedPublicationSchema.from_orm(
-                    Publication.objects.get(id=item["id"])
+                    Publication.objects.annotate(nb_captures=Count("propositions")).get(
+                        id=item["id"]
+                    )
                 ),
             )
 
