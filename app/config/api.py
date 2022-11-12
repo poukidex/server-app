@@ -28,10 +28,7 @@ def api_handler_index_exception(request, exc: IndexException):
         logging.exception("INTERNAL SERVER ERROR")
     return api.create_response(
         request,
-        data={
-            "message": exc.message,
-            "status_code": exc.status,
-        },
+        data={"message": exc.message, "detail": exc.detail},
         status=exc.status,
     )
 

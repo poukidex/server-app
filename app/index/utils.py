@@ -7,20 +7,12 @@ from ninja import Schema
 def check_object(new_object: models.Model):
     try:
         new_object.clean_fields()
-    except ValidationError:
-        raise IncoherentInput()
-
-    try:
         new_object.clean()
-    except ValidationError:
-        raise IncoherentInput()
+    except ValidationError as error:
+        raise IncoherentInput(detail=error.message_dict)
 
     try:
         new_object.validate_unique()
-    except ValidationError as error:
-        raise ConflictException(detail=error.messages)
-
-    try:
         new_object.validate_constraints()
     except ValidationError as error:
         raise ConflictException(detail=error.messages)

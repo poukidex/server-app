@@ -5,7 +5,7 @@ from config.exceptions import IncoherentInput, UnauthorizedException
 from django.contrib.auth import authenticate
 from ninja import Router
 from userauth.models import Token, User
-from userauth.schemas import RefreshAccessTokenOutput, SignInInput, SignInOutput
+from userauth.schemas import RefreshAccessTokenOutput, SignInInput, SignInOutput, SignUpInput, SignUpOutput, ErrorOutput
 
 router = Router()
 
@@ -27,6 +27,34 @@ def sign_in(request, payload: SignInInput):
     if access_token is None:  # pragma: no cover
         raise UnauthorizedException()
     return HTTPStatus.OK, SignInOutput(id_token=token.key, access_token=access_token)
+
+
+@router.post(
+    "/sign-up",
+    auth=None,
+    response={
+        HTTPStatus.OK: SignUpOutput,
+        HTTPStatus.BAD_REQUEST: ErrorOutput,
+        HTTPStatus.CONFLICT: ErrorOutput
+    },
+    url_name="sign-up",
+    operation_id="sign_up",
+)
+def sign_up(request, payload: SignUpInput):
+    if payload.password != payload.password_confirmation:
+        raise IncoherentInput()
+
+    user = User.objects.create_user(
+        username=payload.username,
+        email=payload.email,
+        password=payload.password
+    )
+
+    token, _ = Token.objects.get_or_create(user=user)
+    access_token = JWTCoder.encode(token.key)
+    if access_token is None:  # pragma: no cover
+        raise UnauthorizedException()
+    return HTTPStatus.OK, SignUpOutput(id_token=token.key, access_token=access_token)
 
 
 @router.post(

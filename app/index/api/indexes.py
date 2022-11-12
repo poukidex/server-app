@@ -27,7 +27,9 @@ router = Router()
 
 @router.get(
     path="",
-    response={HTTPStatus.OK: list[IndexSchema]},
+    response={
+        HTTPStatus.OK: list[IndexSchema]
+    },
     url_name="indexes",
     operation_id="get_collection_list",
 )

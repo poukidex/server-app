@@ -3,17 +3,18 @@ from typing import Any
 
 
 class IndexException(Exception):
-    def __init__(self, status: int, message: str, detail: list = None):
+    def __init__(self, status: int, message: str, detail: list | dict = None):
         self.status = status
         self.message = message
-        self.detail = detail if detail else []
+        self.detail = detail if detail else None
 
 
 class IncoherentInput(IndexException):
-    def __init__(self, custom_message: str = "") -> None:
+    def __init__(self, custom_message: str = "", *args: Any, **kwargs: Any) -> None:
         super().__init__(
             message=f"Incoherent payload: {custom_message}",
             status=HTTPStatus.BAD_REQUEST,
+            *args, **kwargs
         )
 
 

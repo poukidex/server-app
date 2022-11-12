@@ -4,6 +4,12 @@ from uuid import UUID
 from ninja import Schema
 
 
+class ErrorOutput(Schema):
+    status: int
+    message: str
+    detail: list | dict
+
+
 class UserInput(Schema):
     username: str
     password: str
@@ -29,3 +35,14 @@ class SignInOutput(Schema):
 
 class RefreshAccessTokenOutput(Schema):
     access_token: str
+
+
+class SignUpInput(Schema):
+    username: str
+    email: str
+    password: str
+    password_confirmation: str
+
+
+class SignUpOutput(SignInOutput):
+    pass
