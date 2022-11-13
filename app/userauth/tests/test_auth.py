@@ -31,8 +31,6 @@ class TestAuth(BaseTest):
         if expected_status == HTTPStatus.OK:
             content = response.json()
 
-            self.assertIsNotNone(content["access_token"])
-
             self.assertIsNotNone(content["id_token"])
             self.assertTrue(
                 Token.objects.filter(

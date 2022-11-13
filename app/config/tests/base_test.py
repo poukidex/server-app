@@ -56,8 +56,8 @@ class BaseTest(TestCase):
         )
         cls.token_two = Token.objects.create(user=cls.user_two)
 
-        cls.auth_user_one = cls._generate_auth_user(cls, cls.token_one)
-        cls.auth_user_two = cls._generate_auth_user(cls, cls.token_two)
+        cls.auth_user_one = cls._generate_auth_user(cls.token_one)
+        cls.auth_user_two = cls._generate_auth_user(cls.token_two)
 
         cls.first_index = Index.objects.create(
             creator=cls.user_one,
@@ -118,7 +118,8 @@ class BaseTest(TestCase):
             json.loads(orjson.dumps(schema.dict())),
         )
 
-    def _generate_auth_user(self, token: Token):
+    @staticmethod
+    def _generate_auth_user(token: Token):
         token = JWTCoder.encode(id_token=token.key)
         return {"HTTP_AUTHORIZATION": f"Bearer {token}"}
 

@@ -1,3 +1,4 @@
+from __future__ import annotations
 import binascii
 import os
 import uuid
@@ -67,6 +68,7 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ["email"]
 
     objects: UserManager = UserManager()
+    auth_token: Token
 
     def __str__(self):
         return f"{self.username}"

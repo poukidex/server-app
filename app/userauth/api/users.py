@@ -15,7 +15,7 @@ def list_users(request):
 
 
 @router.post(
-    path="", url_name="users", response={HTTPStatus.CREATED: UserSchema}, auth=None
+    path="", url_name="users", response={HTTPStatus.CREATED: UserSchema}
 )
 def create_user(request, payload: UserInput):
     if (

@@ -28,15 +28,6 @@ class SignInInput(Schema):
     password: str
 
 
-class SignInOutput(Schema):
-    id_token: str
-    access_token: str
-
-
-class RefreshAccessTokenOutput(Schema):
-    access_token: str
-
-
 class SignUpInput(Schema):
     username: str
     email: str
@@ -44,5 +35,9 @@ class SignUpInput(Schema):
     password_confirmation: str
 
 
-class SignUpOutput(SignInOutput):
-    pass
+class IDTokenOutput(Schema):
+    id_token: str
+
+
+class AccessTokenOutput(Schema):
+    access_token: str

@@ -5,7 +5,7 @@ from config.exceptions import IncoherentInput, UnauthorizedException
 from django.contrib.auth import authenticate
 from ninja import Router
 from userauth.models import Token, User
-from userauth.schemas import RefreshAccessTokenOutput, SignInInput, SignInOutput, SignUpInput, SignUpOutput, ErrorOutput
+from userauth.schemas import IDTokenOutput, AccessTokenOutput, SignInInput, SignUpInput, ErrorOutput
 
 router = Router()
 
@@ -13,7 +13,7 @@ router = Router()
 @router.post(
     "/sign-in",
     auth=None,
-    response={HTTPStatus.OK: SignInOutput},
+    response={HTTPStatus.OK: IDTokenOutput},
     url_name="sign-in",
     operation_id="sign_in",
 )
@@ -23,17 +23,14 @@ def sign_in(request, payload: SignInInput):
         raise UnauthorizedException()
 
     token, _ = Token.objects.get_or_create(user=user)
-    access_token = JWTCoder.encode(token.key)
-    if access_token is None:  # pragma: no cover
-        raise UnauthorizedException()
-    return HTTPStatus.OK, SignInOutput(id_token=token.key, access_token=access_token)
+    return HTTPStatus.OK, IDTokenOutput(id_token=token.key)
 
 
 @router.post(
     "/sign-up",
     auth=None,
     response={
-        HTTPStatus.OK: SignUpOutput,
+        HTTPStatus.OK: IDTokenOutput,
         HTTPStatus.BAD_REQUEST: ErrorOutput,
         HTTPStatus.CONFLICT: ErrorOutput
     },
@@ -51,16 +48,13 @@ def sign_up(request, payload: SignUpInput):
     )
 
     token, _ = Token.objects.get_or_create(user=user)
-    access_token = JWTCoder.encode(token.key)
-    if access_token is None:  # pragma: no cover
-        raise UnauthorizedException()
-    return HTTPStatus.OK, SignUpOutput(id_token=token.key, access_token=access_token)
+    return HTTPStatus.OK, IDTokenOutput(id_token=token.key)
 
 
 @router.post(
-    "/refresh-access-token",
+    "/token/refresh",
     auth=IDTokenBearer(),
-    response={HTTPStatus.OK: RefreshAccessTokenOutput},
+    response={HTTPStatus.OK: AccessTokenOutput},
     url_name="refresh-access-token",
     operation_id="refresh_access_token",
 )
@@ -69,7 +63,19 @@ def refresh_access_token(request):
     access_token = JWTCoder.encode(id_token)
     if access_token is None:  # pragma: no cover
         raise IncoherentInput()
-    return HTTPStatus.OK, RefreshAccessTokenOutput(access_token=access_token)
+    return HTTPStatus.OK, AccessTokenOutput(access_token=access_token)
+
+
+@router.post(
+    "/token/rotate",
+    response={HTTPStatus.OK: IDTokenOutput},
+    url_name="rotate-id-token",
+    operation_id="rotate_id_token",
+)
+def rotate_id_token(request):
+    request.user.auth_token.delete()
+    token = Token.objects.create(user=request.user)
+    return HTTPStatus.OK, IDTokenOutput(id_token=token.key)
 
 
 @router.post(
@@ -79,5 +85,5 @@ def refresh_access_token(request):
     operation_id="sign_out",
 )
 def sign_out(request):
-    Token.objects.get(user=request.user).delete()
+    request.user.auth_token.delete()
     return HTTPStatus.NO_CONTENT, None
