@@ -5,7 +5,13 @@ from config.exceptions import IncoherentInput, UnauthorizedException
 from django.contrib.auth import authenticate
 from ninja import Router
 from userauth.models import Token, User
-from userauth.schemas import IDTokenOutput, AccessTokenOutput, SignInInput, SignUpInput, ErrorOutput
+from userauth.schemas import (
+    AccessTokenOutput,
+    ErrorOutput,
+    IDTokenOutput,
+    SignInInput,
+    SignUpInput,
+)
 
 router = Router()
 
@@ -30,9 +36,9 @@ def sign_in(request, payload: SignInInput):
     "/sign-up",
     auth=None,
     response={
-        HTTPStatus.OK: IDTokenOutput,
+        HTTPStatus.CREATED: IDTokenOutput,
         HTTPStatus.BAD_REQUEST: ErrorOutput,
-        HTTPStatus.CONFLICT: ErrorOutput
+        HTTPStatus.CONFLICT: ErrorOutput,
     },
     url_name="sign-up",
     operation_id="sign_up",
@@ -42,13 +48,11 @@ def sign_up(request, payload: SignUpInput):
         raise IncoherentInput()
 
     user = User.objects.create_user(
-        username=payload.username,
-        email=payload.email,
-        password=payload.password
+        username=payload.username, email=payload.email, password=payload.password
     )
 
     token, _ = Token.objects.get_or_create(user=user)
-    return HTTPStatus.OK, IDTokenOutput(id_token=token.key)
+    return HTTPStatus.CREATED, IDTokenOutput(id_token=token.key)
 
 
 @router.post(
