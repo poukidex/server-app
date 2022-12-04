@@ -1,16 +1,20 @@
 from http import HTTPStatus
 from uuid import UUID
 
+from ninja.pagination import paginate
+
 from config.exceptions import ForbiddenException, IncoherentInput
 from django.db.models import Count, Q
-from ninja import Router
+from ninja import Router, Query, Schema
 
+from config.pagination import OverpoweredPagination
 from index.models import Approbation, Proposition
 from index.schemas import (
     ApprobationInput,
     ApprobationSchema,
     ExtendedPropositionSchema,
     PropositionUpdate,
+    ApprobationQuery
 )
 from index.utils import update_object_from_schema
 
@@ -85,9 +89,6 @@ def approve_proposition(request, id: UUID, payload: ApprobationInput):
         "publication__index"
     ).get(id=id)
 
-    if proposition.user == request.user:
-        raise IncoherentInput("You cannot approve your own proposition!")
-
     approbation, _ = Approbation.objects.get_or_create(
         proposition=proposition, user=request.user
     )
@@ -95,6 +96,18 @@ def approve_proposition(request, id: UUID, payload: ApprobationInput):
     approbation.save()
 
     return HTTPStatus.OK, approbation
+
+
+@router.get(
+    path="/{id}/approbations",
+    url_name="proposition_approbations",
+    response={HTTPStatus.OK: list[ApprobationSchema]},
+    operation_id="get_reaction_list",
+)
+@paginate(OverpoweredPagination)
+def list_approbations(request, id: UUID, filters: ApprobationQuery = Query(default=Schema())):
+    filters_dict: dict = filters.dict(exclude_unset=True)
+    return Approbation.objects.filter(proposition_id=id, **filters_dict)
 
 
 @router.get(

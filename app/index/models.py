@@ -118,3 +118,11 @@ class Approbation(models.Model):
     def __str__(self):
         approbation = "Approbation" if self.approved else "Disapprobation"
         return f"{approbation} by {self.user} on {self.proposition}"
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["proposition", "user"],
+                name="unique_approbation_user_proposition",
+            ),
+        ]

@@ -11,7 +11,12 @@ class ApprobationInput(Schema):
     approved: bool
 
 
+class ApprobationQuery(Schema):
+    approved: Optional[bool]
+
+
 class ApprobationSchema(Schema):
+    id: int
     user: UserSchema
     approved: bool
 
