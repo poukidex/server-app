@@ -36,13 +36,14 @@ class ImageUploadSchema(Schema):
     presigned_url: PresignedUrlFile
 
 
-class PropositionUpdate(Schema):
-    comment: str
-
-
-class PropositionInput(PropositionUpdate):
+class PropositionInput(Schema):
     object_name: str
+    comment: str
     dominant_colors: Optional[dict]
+
+
+class PropositionUpdate(PropositionInput):
+    pass
 
 
 class PropositionSchema(PropositionInput):
@@ -59,14 +60,15 @@ class ExtendedPropositionSchema(PropositionSchema):
     pass
 
 
-class PublicationUpdate(Schema):
+class PublicationInput(Schema):
+    object_name: str
     name: str
     description: str
-
-
-class PublicationInput(PublicationUpdate):
-    object_name: str
     dominant_colors: Optional[dict]
+
+
+class PublicationUpdate(PublicationInput):
+    pass
 
 
 class PublicationSchema(PublicationInput):
@@ -85,13 +87,13 @@ class ValidationMode(models.TextChoices):
     Everything = "Everything"
 
 
-class IndexUpdate(Schema):
+class IndexInput(Schema):
     name: str
     description: str
 
 
-class IndexInput(IndexUpdate):
-    validation_mode: Optional[ValidationMode] = ValidationMode.Manual
+class IndexUpdate(IndexInput):
+    pass
 
 
 class IndexSchema(Schema):

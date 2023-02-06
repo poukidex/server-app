@@ -7,7 +7,7 @@ from ninja import Schema
 class ErrorOutput(Schema):
     status: int
     message: str
-    detail: list | dict
+    detail: dict[str, str]
 
 
 class UserInput(Schema):

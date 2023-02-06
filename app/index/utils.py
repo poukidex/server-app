@@ -15,7 +15,7 @@ def check_object(new_object: models.Model):
         new_object.validate_unique()
         new_object.validate_constraints()
     except ValidationError as error:
-        raise ConflictException(detail=error.messages)
+        raise ConflictException(detail=error.message_dict)
 
 
 def update_object_from_schema(updated_object: models.Model, payload: Schema):

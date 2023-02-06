@@ -22,7 +22,8 @@ class S3Client:
         )
         self.bucket_name = bucket_name
 
-    def generate_object_name(self, prefix: str, filename: str):
+    @staticmethod
+    def generate_object_name(prefix: str, filename: str):
         # TODO: Check filename
         return f"{prefix}/{uuid.uuid4()}-{filename}"
 
