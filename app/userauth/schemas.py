@@ -2,6 +2,7 @@ from typing import Optional
 from uuid import UUID
 
 from ninja import Schema
+from pydantic import validator
 
 
 class ErrorOutput(Schema):
@@ -33,6 +34,12 @@ class SignUpInput(Schema):
     email: str
     password: str
     password_confirmation: str
+
+    @validator('password_confirmation')
+    def passwords_match(cls, value, values, **kwargs):
+        if 'password' in values and value != values['password']:
+            raise ValueError('Confirmation password does not match.')
+        return value
 
 
 class IDTokenOutput(Schema):

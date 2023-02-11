@@ -24,9 +24,9 @@ router = Router()
     operation_id="sign_in",
 )
 def sign_in(request, payload: SignInInput):
-    user: User = authenticate(username=payload.username, password=payload.password)
+    user: User = authenticate(**payload.dict())
     if not user:
-        raise UnauthorizedException()
+        raise IncoherentInput(detail={'password': 'Username or password incorrect.'})
 
     token, _ = Token.objects.get_or_create(user=user)
     return HTTPStatus.OK, IDTokenOutput(id_token=token.key)
@@ -44,9 +44,6 @@ def sign_in(request, payload: SignInInput):
     operation_id="sign_up",
 )
 def sign_up(request, payload: SignUpInput):
-    if payload.password != payload.password_confirmation:
-        raise IncoherentInput()
-
     user = User.objects.create_user(
         username=payload.username, email=payload.email, password=payload.password
     )

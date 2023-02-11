@@ -5,6 +5,7 @@ from config.authentication import AccessTokenBearer
 from config.exceptions import IndexException
 from config.renderer import ORJSONRenderer
 from django.core.exceptions import FieldError, ObjectDoesNotExist
+from ninja.errors import ValidationError
 from ninja import NinjaAPI
 from userauth.api.auth import router as auth_router
 from userauth.api.users import router as users_router
@@ -20,6 +21,16 @@ api.add_router("publications", publication_router, tags=["publication"])
 api.add_router("propositions", proposition_router, tags=["proposition"])
 api.add_router("auth", auth_router, tags=["auth"])
 api.add_router("users", users_router, tags=["user"])
+
+
+@api.exception_handler(ValidationError)
+def api_handler_validation_error(request, exc: ValidationError):
+    mapped_msg = {error['loc'][-1]: error['msg'] for error in exc.errors}
+    return api.create_response(
+        request,
+        data={"message": "ValidationError", "detail": mapped_msg},
+        status=HTTPStatus.BAD_REQUEST,
+    )
 
 
 @api.exception_handler(IndexException)
