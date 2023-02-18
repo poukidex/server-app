@@ -26,36 +26,33 @@ class TestPropostions(BaseTest):
             ),
         )
 
-    def test_update_proposition(self):
-        data = {"comment": "some comment"}
+    def _do_test_update_proposition(self, auth_user, expected_status):
+        data = {"comment": "some comment", "object_name": "some_object_name"}
         kwargs = {"id": self.second_index_publication_2_proposition_1.id}
         response = self.client.put(
             reverse("api:proposition", kwargs=kwargs),
             data=data,
             content_type="application/json",
-            **self.auth_user_one
+            **auth_user
         )
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        content = response.json()
+        self.assertEqual(response.status_code, expected_status)
 
-        proposition_updated = Proposition.objects.get(
-            id=self.second_index_publication_2_proposition_1.id
-        )
+        if expected_status == HTTPStatus.OK:
+            content = response.json()
 
-        self.assertDictEqualsSchema(
-            content, ExtendedPropositionSchema.from_orm(proposition_updated)
-        )
+            proposition_updated = Proposition.objects.get(
+                id=self.second_index_publication_2_proposition_1.id
+            )
+
+            self.assertDictEqualsSchema(
+                content, ExtendedPropositionSchema.from_orm(proposition_updated)
+            )
+
+    def test_update_proposition(self):
+        self._do_test_update_proposition(self.auth_user_one, HTTPStatus.OK)
 
     def test_update_proposition_forbidden(self):
-        data = {"comment": "some comment"}
-        kwargs = {"id": self.second_index_publication_2_proposition_2.id}
-        response = self.client.put(
-            reverse("api:proposition", kwargs=kwargs),
-            data=data,
-            content_type="application/json",
-            **self.auth_user_two
-        )
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+        self._do_test_update_proposition(self.auth_user_two, HTTPStatus.FORBIDDEN)
 
     def test_delete_proposition(self):
         kwargs = {"id": self.second_index_publication_2_proposition_1.id}
@@ -139,7 +136,7 @@ class TestPropostions(BaseTest):
             self.second_index_publication_2_proposition_1,
             self.auth_user_one,
             self.user_one,
-            HTTPStatus.BAD_REQUEST,
+            HTTPStatus.OK,
         )
 
     def test_get_my_approbation(self):
@@ -158,6 +155,32 @@ class TestPropostions(BaseTest):
         content = response.json()
         self.assertEqual(content["approved"], True)
         self.assertEqual(content["user"]["id"], str(self.user_one.id))
+
+    def test_list_approbations(self):
+        app1 = Approbation.objects.create(
+            proposition=self.second_index_publication_2_proposition_2,
+            user=self.user_one,
+            approved=True,
+        )
+
+        app2 = Approbation.objects.create(
+            proposition=self.second_index_publication_2_proposition_2,
+            user=self.user_two,
+            approved=True,
+        )
+
+        kwargs = {"id": self.second_index_publication_2_proposition_2.id}
+        response = self.client.get(
+            reverse("api:proposition_approbations", kwargs=kwargs), **self.auth_user_one
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+        content = response.json()["items"]
+        self.assertEqual(len(content), 2)
+        ids = [app["id"] for app in content]
+
+        self.assertIn(app1.id, ids)
+        self.assertIn(app2.id, ids)
 
     def test_delete_my_approbation(self):
         Approbation.objects.create(
