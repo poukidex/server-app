@@ -1,3 +1,3 @@
-# Index
+# Poukidex
 
-I need some pokedex to remember what I saw
+I need some poukidex to remember what I saw

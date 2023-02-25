@@ -20,7 +20,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images: ghcr.io/n7-thomas/index
+        images: ghcr.io/n7-thomas/poukidex
         tags: |
           type=ref,event=branch
           type=sha,prefix=sha-
@@ -40,5 +40,5 @@ jobs:
         pull: true
         push: true
         tags: ${{ steps.meta.outputs.tags }}
-        cache-from: type=registry,ref=ghcr.io/n7-thomas/index:buildcache
-        cache-to: type=registry,ref=ghcr.io/n7-thomas/index:buildcache,mode=max
+        cache-from: type=registry,ref=ghcr.io/n7-thomas/poukidex:buildcache
+        cache-to: type=registry,ref=ghcr.io/n7-thomas/poukidex:buildcache,mode=max
