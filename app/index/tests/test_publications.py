@@ -27,36 +27,37 @@ class TestPublications(BaseTest):
         )
         self.assertDictEqualsSchema(content, ExtendedPublicationSchema.from_orm(pub))
 
-    def test_update_publication(self):
-        data = {"name": "new-name", "description": "description"}
+    def _do_test_update_publication(self, auth_user, expected_status):
+        data = {
+            "name": "new-name",
+            "description": "description",
+            "object_name": "some_object_name",
+        }
         kwargs = {"id": self.second_index_publication_2.id}
         response = self.client.put(
             reverse("api:publication", kwargs=kwargs),
             data=data,
             content_type="application/json",
-            **self.auth_user_one
+            **auth_user
         )
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        content = response.json()
+        self.assertEqual(response.status_code, expected_status)
 
-        publication_updated = Publication.objects.get(
-            id=self.second_index_publication_2.id
-        )
+        if expected_status == HTTPStatus.OK:
+            content = response.json()
 
-        self.assertDictEqualsSchema(
-            content, ExtendedPublicationSchema.from_orm(publication_updated)
-        )
+            publication_updated = Publication.objects.get(
+                id=self.second_index_publication_2.id
+            )
+
+            self.assertDictEqualsSchema(
+                content, ExtendedPublicationSchema.from_orm(publication_updated)
+            )
+
+    def test_update_publication(self):
+        self._do_test_update_publication(self.auth_user_one, HTTPStatus.OK)
 
     def test_update_publication_forbidden(self):
-        data = {"name": "new-name", "description": "description"}
-        kwargs = {"id": self.second_index_publication_2.id}
-        response = self.client.put(
-            reverse("api:publication", kwargs=kwargs),
-            data=data,
-            content_type="application/json",
-            **self.auth_user_two
-        )
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+        self._do_test_update_publication(self.auth_user_two, HTTPStatus.FORBIDDEN)
 
     def test_delete_publication(self):
         kwargs = {"id": self.second_index_publication_2.id}

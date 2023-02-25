@@ -49,11 +49,11 @@ class TestAuth(BaseTest):
         )
 
     def test_signin_user_unknown(self):
-        self._do_test_signin("unknown", self.user_one_pwd, HTTPStatus.UNAUTHORIZED)
+        self._do_test_signin("unknown", self.user_one_pwd, HTTPStatus.BAD_REQUEST)
 
     def test_signin_bad_password(self):
         self._do_test_signin(
-            self.user_one.username, "bad_password", HTTPStatus.UNAUTHORIZED
+            self.user_one.username, "bad_password", HTTPStatus.BAD_REQUEST
         )
 
     def test_refresh_access_token(self):
