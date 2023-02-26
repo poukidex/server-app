@@ -7,7 +7,6 @@ from ninja import Schema
 def check_object(new_object: models.Model):
     try:
         new_object.clean_fields()
-        new_object.clean()
     except ValidationError as error:
         raise IncoherentInput(detail=error.message_dict)
 

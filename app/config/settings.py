@@ -27,11 +27,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     "userauth",
     "index",
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -40,6 +42,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+cors_allowed_origins = os.getenv("DJANGO_CORS_ALLOWED_ORIGINS")
+CORS_ALLOWED_ORIGINS = cors_allowed_origins.split(",") if cors_allowed_origins else []
 
 ROOT_URLCONF = "config.urls"
 
@@ -214,11 +219,8 @@ if JWT_EXPIRES_IN is None:
     JWT_EXPIRES_IN = 3600
 
 S3_ENV = os.getenv("S3_ENV", "mock")
-S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL")
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_BUCKET_NAME = os.getenv("AWS_BUCKET_NAME")
-AWS_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
+GCP_BUCKET_NAME = os.getenv("GCP_BUCKET_NAME")
+GCP_SECRETS_PATH = os.getenv("GCP_SECRETS_PATH")
 
 CREATION_TOKEN_PASSWORD = os.getenv("CREATION_TOKEN_PASSWORD")
 if CREATION_TOKEN_PASSWORD is None:
