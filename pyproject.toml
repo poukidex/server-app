@@ -1,21 +1,21 @@
 [tool.poetry]
-name = "index"
+name = "poukidex"
 version = "0.1.0"
-description = "Backend of Index app"
-authors = ["Thomas Darget <thomasdarget@hotmail.fr>"]
+description = "Backend of Poukidex app"
+authors = ["Thomas Darget <thomasdarget@hotmail.fr>", "Hicham Bakri"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-Django = "^4.1.2"
-django-ninja = "^0.19.1"
-orjson = "^3.8.0"
+Django = "4.1.7"
+django-ninja = "0.21.0"
+orjson = "3.8.6"
 celery = "^5.2.7"
 psycopg2-binary = "^2.9.3"
 Unidecode = "^1.3.6"
 django-resized = "^1.0.2"
-Pillow = "^9.2.0"
-boto3 = "^1.24.89"
+Pillow = "9.4.0"
+boto3 = "^1.26.79"
 PyJWT = "^2.5.0"
 django-redis = "^5.2.0"
 google-cloud-storage = "^2.7.0"
