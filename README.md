@@ -1,3 +1,3 @@
 # Poukidex
 
-I need some poukidex to remember what I saw
+I need some pookiedex to remember what I saw

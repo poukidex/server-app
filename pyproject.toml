@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "poukidex"
+name = "pookiedex"
 version = "0.1.0"
-description = "Backend of Poukidex app"
+description = "Backend of Pookiedex app"
 authors = ["Thomas Darget <thomasdarget@hotmail.fr>", "Hicham Bakri"]
 readme = "README.md"
 
