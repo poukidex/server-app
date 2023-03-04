@@ -161,3 +161,4 @@ prod.yml
 prod.nginx.conf
 
 secrets.json
+dumped_db.sql
