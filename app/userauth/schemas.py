@@ -11,11 +11,15 @@ class ErrorOutput(Schema):
     detail: dict[str, str]
 
 
-class UserInput(Schema):
-    username: str
+class PasswordConfirmation(Schema):
     password: str
-    email: str
-    creation_token_password: str
+    password_confirmation: str
+
+    @validator('password_confirmation')
+    def passwords_match(cls, value, values, **kwargs):
+        if 'password' in values and value != values['password']:
+            raise ValueError('Confirmation password does not match.')
+        return value
 
 
 class UserSchema(Schema):
@@ -29,17 +33,9 @@ class SignInInput(Schema):
     password: str
 
 
-class SignUpInput(Schema):
+class SignUpInput(PasswordConfirmation):
     username: str
     email: str
-    password: str
-    password_confirmation: str
-
-    @validator('password_confirmation')
-    def passwords_match(cls, value, values, **kwargs):
-        if 'password' in values and value != values['password']:
-            raise ValueError('Confirmation password does not match.')
-        return value
 
 
 class IDTokenOutput(Schema):
@@ -48,3 +44,11 @@ class IDTokenOutput(Schema):
 
 class AccessTokenOutput(Schema):
     access_token: str
+
+
+class PasswordResetInput(Schema):
+    email: str
+
+
+class PasswordResetConfirmationInput(PasswordConfirmation):
+    pass

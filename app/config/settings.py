@@ -135,7 +135,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ======================================================================================
-#                                         Redis
+# Redis
 # ======================================================================================
 REDIS_URL = os.getenv("REDIS_URL")
 CACHES = {
@@ -149,7 +149,17 @@ CACHES = {
 }
 
 # ======================================================================================
-#                                        Logging
+# Email
+# ======================================================================================
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+
+# ======================================================================================
+# Logging
 # ======================================================================================
 
 LOGGING = DEFAULT_LOGGING
@@ -210,6 +220,10 @@ for logger in debug_loggers.split(",") if debug_loggers else []:
             }
     LOGGING["loggers"][logger]["level"] = "DEBUG"
 
+# ======================================================================================
+# JWT
+# ======================================================================================
+
 JWT_KEY = os.getenv("JWT_KEY")
 if JWT_KEY is None:
     raise Exception("JWT_KEY shall be configured")
@@ -217,6 +231,10 @@ if JWT_KEY is None:
 JWT_EXPIRES_IN = os.getenv("JWT_EXPIRES_IN")
 if JWT_EXPIRES_IN is None:
     JWT_EXPIRES_IN = 3600
+
+# ======================================================================================
+# S3
+# ======================================================================================
 
 S3_ENV = os.getenv("S3_ENV", "mock")
 GCP_BUCKET_NAME = os.getenv("GCP_BUCKET_NAME")
