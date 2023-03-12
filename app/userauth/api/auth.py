@@ -114,7 +114,7 @@ def reset_password(request, payload: PasswordResetInput):
     token = token_generator.make_token(user)
 
     # Generate the password reset link URL
-    password_reset_link_url = f'poukidex://password-reset/{uid}/{token}'
+    password_reset_link_url = f'poukidex://reset-password/{uid}/{token}'
 
     # Send the password reset email to the user
     email_subject = 'Reset your password'
