@@ -19,7 +19,7 @@ from userauth.schemas import (
     PasswordResetConfirmationInput,
     IDTokenOutput,
     SignInInput,
-    SignUpInput,
+    SignUpInput, ErrorOutput,
 )
 
 router = Router()
@@ -28,11 +28,11 @@ router = Router()
 @router.post(
     "/sign-in",
     auth=None,
-    response={HTTPStatus.OK: IDTokenOutput},
+    response={HTTPStatus.OK: IDTokenOutput, HTTPStatus.BAD_REQUEST: ErrorOutput},
     url_name="sign-in",
     operation_id="sign_in",
 )
-def sign_in(request, payload: SignInInput):
+def sign_in(_, payload: SignInInput):
     user: User = authenticate(**payload.dict())
     if not user:
         raise IncoherentInput(detail={'password': 'Username or password incorrect.'})
@@ -48,7 +48,7 @@ def sign_in(request, payload: SignInInput):
     url_name="sign-up",
     operation_id="sign_up",
 )
-def sign_up(request, payload: SignUpInput):
+def sign_up(_, payload: SignUpInput):
     user = User.objects.create_user(
         username=payload.username, email=payload.email, password=payload.password
     )
@@ -102,7 +102,7 @@ def sign_out(request):
     url_name="reset-password",
     operation_id="reset_password",
 )
-def reset_password(request, payload: PasswordResetInput):
+def reset_password(_, payload: PasswordResetInput):
     try:
         user = User.objects.get(email=payload.email)
     except User.DoesNotExist:
@@ -140,7 +140,7 @@ def reset_password(request, payload: PasswordResetInput):
     url_name="confirm-reset-password",
     operation_id="confirm-reset-password",
 )
-def confirm_reset_password(request, user_id: str, token: str, payload: PasswordResetConfirmationInput):
+def confirm_reset_password(_, user_id: str, token: str, payload: PasswordResetConfirmationInput):
     try:
         user_id = force_str(urlsafe_base64_decode(user_id))
         user = User.objects.get(pk=user_id)
