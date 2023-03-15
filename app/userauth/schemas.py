@@ -15,17 +15,21 @@ class PasswordConfirmation(Schema):
     password: str
     password_confirmation: str
 
-    @validator('password_confirmation')
+    @validator("password_confirmation")
     def passwords_match(cls, value, values, **kwargs):
-        if 'password' in values and value != values['password']:
-            raise ValueError('Confirmation password does not match.')
+        if "password" in values and value != values["password"]:
+            raise ValueError("Confirmation password does not match.")
         return value
+
+
+class UserUpdate(Schema):
+    picture_object_name: Optional[str]
 
 
 class UserSchema(Schema):
     id: UUID
     username: str
-    picture: Optional[str]
+    picture_presigned_url: Optional[str]
 
 
 class SignInInput(Schema):

@@ -1,14 +1,13 @@
 from __future__ import annotations
+
 import binascii
 import os
 import uuid
 
+from config.external_client import s3_client
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django_resized import ResizedImageField
-from userauth.utils import upload_to
-
 from index.utils import check_object
 
 
@@ -57,11 +56,8 @@ class User(AbstractUser):
         },
     )
 
-    picture = ResizedImageField(
-        size=[200, 200],
-        crop=["middle", "center"],
-        upload_to=upload_to,
-        default="user.png",
+    picture_object_name: str = models.CharField(
+        null=True, blank=True, max_length=255, verbose_name="Picture object name"
     )
 
     USERNAME_FIELD = "username"
@@ -72,6 +68,12 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username}"
+
+    @property
+    def picture_presigned_url(self):
+        if not self.picture_object_name:
+            return None
+        return s3_client.generate_presigned_url(self.picture_object_name)
 
 
 class Token(models.Model):
