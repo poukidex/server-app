@@ -24,12 +24,15 @@ class PasswordConfirmation(Schema):
 
 class UserUpdate(Schema):
     picture_object_name: Optional[str]
-
-
-class UserSchema(Schema):
-    id: UUID
     username: str
+    first_name: Optional[str]
+    last_name: Optional[str]
+
+
+class UserSchema(UserUpdate):
+    id: UUID
     picture_presigned_url: Optional[str]
+    fullname: str
 
 
 class SignInInput(Schema):

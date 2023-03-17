@@ -3,6 +3,8 @@ from http import HTTPStatus
 from index.api.utils import generate_presigned_url_for_object
 from index.schemas import ImageUploadInput, ImageUploadSchema
 from ninja import Router
+
+from index.utils import update_object_from_schema
 from userauth.models import User
 from userauth.schemas import UserSchema, UserUpdate
 
@@ -44,6 +46,5 @@ def generate_presigned_url_for_upload(request, payload: ImageUploadInput):
 )
 def update_my_user(request, payload: UserUpdate):
     user = request.user
-    user.picture_object_name = payload.picture_object_name
-    user.save()
+    update_object_from_schema(user, payload)
     return HTTPStatus.OK, user

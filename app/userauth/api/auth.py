@@ -104,7 +104,7 @@ def sign_out(request):
 )
 def reset_password(_, payload: PasswordResetInput):
     try:
-        user = User.objects.get(email=payload.email)
+        user = User.objects.get(email__iexact=payload.email)
     except User.DoesNotExist:
         raise IncoherentInput(detail={'email': 'User with this email does not exist.'})
 

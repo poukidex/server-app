@@ -17,7 +17,7 @@ router = Router()
     path="/feed",
     url_name="feed",
     response={HTTPStatus.OK: list[PropositionSchema]},
-    operation_id="get_feeed",
+    operation_id="get_feed",
 )
 @paginate(OverpoweredPagination)
 def retrieve_feed(request, since: Optional[datetime] = None):

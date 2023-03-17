@@ -75,6 +75,12 @@ class User(AbstractUser):
             return None
         return s3_client.generate_presigned_url(self.picture_object_name)
 
+    def fullname(self) -> str:
+        if self.first_name or self.last_name:
+            return f"{self.first_name} {self.last_name}"
+        else:
+            return f"{self.username}"
+
 
 class Token(models.Model):
     """
