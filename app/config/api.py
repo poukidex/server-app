@@ -1,21 +1,25 @@
 import logging
 from http import HTTPStatus
 
-from django.core.exceptions import FieldError, ObjectDoesNotExist
-from index.api.home import router as home_router
-from ninja import NinjaAPI
-from ninja.errors import ValidationError
-
 from config.authentication import AccessTokenBearer
 from config.exceptions import IndexException
 from config.renderer import ORJSONRenderer
+from django.core.exceptions import FieldError, ObjectDoesNotExist
+from index.api.home import router as home_router
 from index.api.indexes import router as index_router
 from index.api.propositions import router as proposition_router
 from index.api.publications import router as publication_router
+from ninja import NinjaAPI
+from ninja.errors import ValidationError
 from userauth.api.auth import router as auth_router
 from userauth.api.users import router as users_router
 
-api = NinjaAPI(auth=AccessTokenBearer(), urls_namespace="api", renderer=ORJSONRenderer())
+api = NinjaAPI(
+    auth=AccessTokenBearer(),
+    urls_namespace="api",
+    renderer=ORJSONRenderer(),
+    servers=[],
+)
 
 api.add_router("home", home_router, tags=["home"])
 api.add_router("indexes", index_router, tags=["index"])
@@ -27,7 +31,7 @@ api.add_router("users", users_router, tags=["user"])
 
 @api.exception_handler(ValidationError)
 def api_handler_validation_error(request, exc: ValidationError):
-    mapped_msg = {error['loc'][-1]: error['msg'] for error in exc.errors}
+    mapped_msg = {error["loc"][-1]: error["msg"] for error in exc.errors}
     return api.create_response(
         request,
         data={"message": "ValidationError", "detail": mapped_msg},

@@ -47,7 +47,7 @@ def update_proposition(request, id: UUID, payload: PropositionUpdate):
 
     if (
         proposition.user != request.user
-        or proposition.publication.index.creator != request.user
+        and proposition.publication.index.creator != request.user
     ):
         raise ForbiddenException()
 

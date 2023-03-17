@@ -49,8 +49,7 @@ class PropositionUpdate(PropositionInput):
 class PropositionSchema(PropositionInput):
     id: UUID
     created_at: datetime
-    user_id: UUID
-    user_username: str = Field(alias="user.username")
+    user: UserSchema
     presigned_url: str
     nb_likes: Optional[int] = 0
     nb_dislikes: Optional[int] = 0
@@ -101,8 +100,7 @@ class IndexSchema(Schema):
     name: str
     description: str
     created_at: datetime
-    creator_id: UUID
-    creator_username: str = Field(alias="creator.username")
+    creator: UserSchema
     validation_mode: ValidationMode
     nb_items: Optional[int] = 0
 

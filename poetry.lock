@@ -459,18 +459,6 @@ redis = ">=3,<4.0.0 || >4.0.0,<4.0.1 || >4.0.1"
 hiredis = ["redis[hiredis] (>=3,!=4.0.0,!=4.0.1)"]
 
 [[package]]
-name = "django-resized"
-version = "1.0.2"
-description = "Resizes image origin to specified size."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "django-resized-1.0.2.tar.gz", hash = "sha256:52d727860f64ef4fdadbe2e74b66231c71c59df4d95949e338fcd320450f77fa"},
-    {file = "django_resized-1.0.2-py3-none-any.whl", hash = "sha256:d55a8d4125838486a1e76ffb689f8364f7d579bc7562b04400065602ec2ba7cc"},
-]
-
-[[package]]
 name = "filelock"
 version = "3.10.0"
 description = "A platform independent file lock."
@@ -1439,4 +1427,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a4c36298d37be5f3509dd2991f44c85ce1b59555051f1f5bd1ff0ba4d94519b7"
+content-hash = "4f4a1130f3f56d3af74362c0a24c3780ec1ea42513906ec45b35b4ef747419eb"
