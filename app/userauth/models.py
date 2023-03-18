@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import binascii
 import os
-import uuid
 
-from config.external_client import s3_client
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from index.utils import check_object
+
+from core.models import Identifiable, Storable, Traceable
+from core.utils import check_object
 
 
 class UserManager(BaseUserManager):
@@ -46,18 +46,13 @@ class UserManager(BaseUserManager):
         return self._create_user(username, password, **extra_fields)
 
 
-class User(AbstractUser):
-    id: uuid.UUID = models.UUIDField(default=uuid.uuid4, primary_key=True)
+class User(AbstractUser, Identifiable, Storable, Traceable):
     email: str = models.EmailField(
         _("email address"),
         unique=True,
         error_messages={
             "unique": _("A user with that email already exists."),
         },
-    )
-
-    picture_object_name: str = models.CharField(
-        null=True, blank=True, max_length=255, verbose_name="Picture object name"
     )
 
     USERNAME_FIELD = "username"
@@ -68,12 +63,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username}"
-
-    @property
-    def picture_presigned_url(self):
-        if not self.picture_object_name:
-            return None
-        return s3_client.generate_presigned_url(self.picture_object_name)
 
     def fullname(self) -> str:
         if self.first_name or self.last_name:

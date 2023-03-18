@@ -1,7 +1,8 @@
-from config.exceptions import ConflictException, IncoherentInput
 from django.core.exceptions import ValidationError
 from django.db import models
 from ninja import Schema
+
+from config.exceptions import ConflictException, IncoherentInput
 
 
 def check_object(new_object: models.Model):

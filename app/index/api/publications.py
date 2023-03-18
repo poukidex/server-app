@@ -2,24 +2,19 @@ from http import HTTPStatus
 from uuid import UUID
 
 from django.db.models import Count, Q
-
-from config.exceptions import ForbiddenException
-from config.pagination import OverpoweredPagination
 from ninja import Router
 from ninja.pagination import paginate
 
-from index.api.utils import generate_presigned_url_for_object
+from config.exceptions import ForbiddenException
+from config.pagination import OverpoweredPagination
+from core.utils import check_object, update_object_from_schema
 from index.models import Proposition, Publication
 from index.schemas import (
-    ExtendedPropositionSchema,
-    ExtendedPublicationSchema,
-    ImageUploadInput,
-    ImageUploadSchema,
     PropositionInput,
     PropositionSchema,
+    PublicationSchema,
     PublicationUpdate,
 )
-from index.utils import check_object, update_object_from_schema
 
 router = Router()
 
@@ -27,17 +22,19 @@ router = Router()
 @router.get(
     path="/{id}",
     url_name="publication",
-    response={HTTPStatus.OK: ExtendedPublicationSchema},
+    response={HTTPStatus.OK: PublicationSchema},
     operation_id="get_item",
 )
 def retrieve_publication(request, id: UUID):
-    return HTTPStatus.OK, Publication.objects.annotate(nb_captures=Count("propositions")).get(id=id)
+    return HTTPStatus.OK, Publication.objects.annotate(
+        nb_captures=Count("propositions")
+    ).get(id=id)
 
 
 @router.put(
     path="/{id}",
     url_name="publication",
-    response={HTTPStatus.OK: ExtendedPublicationSchema},
+    response={HTTPStatus.OK: PublicationSchema},
     operation_id="update_item",
 )
 def update_publication(request, id: UUID, payload: PublicationUpdate):
@@ -69,22 +66,9 @@ def delete_publication(request, id: UUID):
 
 
 @router.post(
-    path="/{id}/propositions/upload",
-    url_name="publication_propositions_upload",
-    response={HTTPStatus.OK: ImageUploadSchema},
-    operation_id="generate_capture_presigned_url",
-)
-def generate_presigned_url_for_upload(request, id: UUID, payload: ImageUploadInput):
-    publication: Publication = Publication.objects.get(id=id)
-    return generate_presigned_url_for_object(
-        publication, payload.filename, payload.content_type
-    )
-
-
-@router.post(
     path="/{id}/propositions",
     url_name="publication_propositions",
-    response={HTTPStatus.CREATED: ExtendedPropositionSchema},
+    response={HTTPStatus.CREATED: PropositionSchema},
     operation_id="create_capture",
 )
 def add_proposition(request, id: UUID, payload: PropositionInput):
@@ -105,7 +89,7 @@ def add_proposition(request, id: UUID, payload: PropositionInput):
 @router.get(
     path="/{id}/proposition",
     url_name="my_proposition",
-    response={HTTPStatus.OK: ExtendedPropositionSchema},
+    response={HTTPStatus.OK: PropositionSchema},
     operation_id="get_my_capture",
 )
 def retrieve_my_proposition(request, id: UUID):

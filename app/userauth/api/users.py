@@ -1,10 +1,8 @@
 from http import HTTPStatus
 
-from index.api.utils import generate_presigned_url_for_object
-from index.schemas import ImageUploadInput, ImageUploadSchema
 from ninja import Router
 
-from index.utils import update_object_from_schema
+from core.utils import update_object_from_schema
 from userauth.models import User
 from userauth.schemas import UserSchema, UserUpdate
 
@@ -24,18 +22,6 @@ def list_users(request):
 )
 def get_my_user(request):
     return request.user
-
-
-@router.post(
-    path="/me/picture/upload",
-    url_name="user_picture_upload",
-    response={HTTPStatus.OK: ImageUploadSchema},
-    operation_id="generate_user_picture_presigned_url",
-)
-def generate_presigned_url_for_upload(request, payload: ImageUploadInput):
-    return generate_presigned_url_for_object(
-        request.user, payload.filename, payload.content_type
-    )
 
 
 @router.put(

@@ -1,21 +1,11 @@
-import uuid
-
-from config.external_client import s3_client
 from django.db import models
-from django.utils import timezone
+
+from core.models import Identifiable, Representable, Storable, Traceable
+from index.schemas import ValidationMode
 from userauth.models import User
 
-from index.schemas import ValidationMode
 
-
-class Index(models.Model):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(default=timezone.now)
-
-    name = models.CharField(max_length=64)
-    description = models.CharField(max_length=255)
-
+class Index(Identifiable, Representable, Traceable, Storable):
     creator = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name="indexes"
     )
@@ -36,19 +26,11 @@ class Index(models.Model):
         ]
 
 
-class Publication(models.Model):
+class Publication(Identifiable, Representable, Traceable, Storable):
     index = models.ForeignKey(
         Index, on_delete=models.CASCADE, related_name="publications"
     )
 
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(default=timezone.now)
-
-    name = models.CharField(max_length=63)
-    description = models.CharField(max_length=255)
-
-    object_name = models.CharField(max_length=255)
     dominant_colors = models.JSONField(null=True, blank=True)
 
     def __str__(self):
@@ -62,16 +44,8 @@ class Publication(models.Model):
             ),
         ]
 
-    @property
-    def presigned_url(self):
-        return s3_client.generate_presigned_url(self.object_name)
 
-
-class Proposition(models.Model):
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(default=timezone.now)
-
+class Proposition(Identifiable, Traceable, Storable):
     publication = models.ForeignKey(
         Publication, on_delete=models.CASCADE, related_name="propositions"
     )
@@ -82,8 +56,9 @@ class Proposition(models.Model):
 
     comment = models.CharField(max_length=255)
 
-    object_name = models.CharField(max_length=255)
     dominant_colors = models.JSONField(null=True, blank=True)
+
+    object_name = models.CharField(max_length=255)
 
     def __str__(self):
         return f"Proposition of {self.user} on {self.publication}"
@@ -96,15 +71,8 @@ class Proposition(models.Model):
             ),
         ]
 
-    @property
-    def presigned_url(self):
-        return s3_client.generate_presigned_url(self.object_name)
 
-
-class Approbation(models.Model):
-    updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(default=timezone.now)
-
+class Approbation(Traceable):
     proposition = models.ForeignKey(
         Proposition, on_delete=models.CASCADE, related_name="approbations"
     )

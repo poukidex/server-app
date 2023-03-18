@@ -1,10 +1,10 @@
 from http import HTTPStatus
 
-from config.tests.base_test import BaseTest
 from django.urls import reverse
 
+from config.tests.base_test import BaseTest
 from index.models import Approbation, Proposition, Publication
-from index.schemas import ExtendedPropositionSchema
+from index.schemas import PropositionSchema
 
 
 class TestPropostions(BaseTest):
@@ -21,9 +21,7 @@ class TestPropostions(BaseTest):
         content = response.json()
         self.assertDictEqualsSchema(
             content,
-            ExtendedPropositionSchema.from_orm(
-                self.second_index_publication_2_proposition_2
-            ),
+            PropositionSchema.from_orm(self.second_index_publication_2_proposition_2),
         )
 
     def _do_test_update_proposition(self, auth_user, expected_status):
@@ -45,7 +43,7 @@ class TestPropostions(BaseTest):
             )
 
             self.assertDictEqualsSchema(
-                content, ExtendedPropositionSchema.from_orm(proposition_updated)
+                content, PropositionSchema.from_orm(proposition_updated)
             )
 
     def test_update_proposition(self):
