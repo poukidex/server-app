@@ -40,9 +40,17 @@ class SignInInput(Schema):
     password: str
 
 
-class SignUpInput(PasswordConfirmation):
+class SignUpInput(Schema):
     username: str
     email: str
+    password: str
+    password_confirmation: str
+
+    @validator("password_confirmation")
+    def passwords_match(cls, value, values, **kwargs):
+        if "password" in values and value != values["password"]:
+            raise ValueError("Confirmation password does not match.")
+        return value
 
 
 class IDTokenOutput(Schema):
