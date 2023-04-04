@@ -1,8 +1,13 @@
 from typing import Optional
-from uuid import UUID
 
 from ninja import Schema
 from pydantic import validator
+
+from core.schemas import (
+    IdentifiableOutput,
+    OptionalStorableInput,
+    OptionalStorableOutput,
+)
 
 
 class PasswordConfirmation(Schema):
@@ -16,16 +21,16 @@ class PasswordConfirmation(Schema):
         return value
 
 
-class UserUpdate(Schema):
+class UserUpdate(OptionalStorableInput):
     username: str
     first_name: Optional[str]
     last_name: Optional[str]
-    object_name: Optional[str]
 
 
-class UserSchema(UserUpdate):
-    id: UUID
-    presigned_url: Optional[str]
+class UserSchema(IdentifiableOutput, OptionalStorableOutput):
+    username: str
+    first_name: Optional[str]
+    last_name: Optional[str]
     fullname: str
 
 

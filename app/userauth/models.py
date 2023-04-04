@@ -47,7 +47,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser, Identifiable, Storable, Traceable):
-    email: str = models.EmailField(
+    email = models.EmailField(
         _("email address"),
         unique=True,
         error_messages={
@@ -58,7 +58,7 @@ class User(AbstractUser, Identifiable, Storable, Traceable):
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
 
-    objects: UserManager = UserManager()
+    objects = UserManager()
     auth_token: Token
 
     def __str__(self):

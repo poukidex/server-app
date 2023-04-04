@@ -1,7 +1,6 @@
 import uuid
 
 from django.db import models
-from django.utils import timezone
 
 from config.external_client import s3_client
 
@@ -15,14 +14,14 @@ class Identifiable(models.Model):
 
 class Traceable(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         abstract = True
 
 
 class Representable(models.Model):
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
 
     class Meta:
@@ -35,6 +34,7 @@ class Storable(models.Model):
         blank=True,
         max_length=255,
     )
+    dominant_colors = models.JSONField(null=True, blank=True)
 
     @property
     def presigned_url(self):
