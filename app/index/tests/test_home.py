@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from config.tests.base_test import BaseTest
 from index.models import Proposition, Publication
-from index.schemas import ExtendedPropositionSchema
+from index.schemas import PropositionSchema
 
 
 class TestHome(BaseTest):
@@ -28,7 +28,7 @@ class TestHome(BaseTest):
             user=self.user_one,
             comment="Random comment",
             object_name="some object_name",
-            created_at=d1
+            created_at=d1,
         )
 
         d2 = datetime.now(tz=timezone.utc) - timedelta(minutes=10)
@@ -37,7 +37,7 @@ class TestHome(BaseTest):
             user=self.user_one,
             comment="Random comment",
             object_name="some object_name",
-            created_at=d2
+            created_at=d2,
         )
 
         d3 = datetime.now(tz=timezone.utc)
@@ -46,7 +46,7 @@ class TestHome(BaseTest):
             user=self.user_one,
             comment="Random comment",
             object_name="some object_name",
-            created_at=d3
+            created_at=d3,
         )
 
         url = reverse("api:feed") + "?order_by=created_at"
@@ -54,9 +54,7 @@ class TestHome(BaseTest):
             since_datetime = since_datetime.timestamp()
             url += f"&since={since_datetime}"
 
-        response = self.client.get(
-            url, **self.auth_user_one
-        )
+        response = self.client.get(url, **self.auth_user_one)
         self.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()["items"]
         self.assertEqual(len(content), expected_number)
@@ -65,9 +63,7 @@ class TestHome(BaseTest):
             ids.append(item["id"])
             self.assertDictEqualsSchema(
                 item,
-                ExtendedPropositionSchema.from_orm(
-                    Proposition.objects.get(id=item["id"])
-                ),
+                PropositionSchema.from_orm(Proposition.objects.get(id=item["id"])),
             )
 
         if expected_number >= 1:
@@ -91,3 +87,22 @@ class TestHome(BaseTest):
     def test_list_propositions_with_since_recent(self):
         d3 = datetime.now(tz=timezone.utc) - timedelta(minutes=2)
         self._do_test_list_propositions(d3, 1)
+
+    def test_generate_presigned_url(self):
+        data = {
+            "id": self.first_index.id,
+            "filename": "image.png",
+            "content_type": "application/png",
+        }
+
+        kwargs = {}
+        response = self.client.post(
+            reverse("api:generate_presigned_url", kwargs=kwargs),
+            data=data,
+            content_type="application/json",
+            **self.auth_user_one,
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        content = response.json()
+        self.assertIsNotNone(content["object_name"])
+        self.assertIsNotNone(content["presigned_url"])

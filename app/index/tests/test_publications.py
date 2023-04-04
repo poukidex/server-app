@@ -1,12 +1,12 @@
 import uuid
 from http import HTTPStatus
 
-from config.tests.base_test import BaseTest
 from django.db.models import Count
 from django.urls import reverse
 
+from config.tests.base_test import BaseTest
 from index.models import Proposition, Publication
-from index.schemas import ExtendedPropositionSchema, ExtendedPublicationSchema
+from index.schemas import PropositionSchema, PublicationSchema
 
 
 class TestPublications(BaseTest):
@@ -25,7 +25,7 @@ class TestPublications(BaseTest):
         pub = Publication.objects.annotate(nb_captures=Count("propositions")).get(
             id=self.second_index_publication_2.id
         )
-        self.assertDictEqualsSchema(content, ExtendedPublicationSchema.from_orm(pub))
+        self.assertDictEqualsSchema(content, PublicationSchema.from_orm(pub))
 
     def _do_test_update_publication(self, auth_user, expected_status):
         data = {
@@ -50,7 +50,7 @@ class TestPublications(BaseTest):
             )
 
             self.assertDictEqualsSchema(
-                content, ExtendedPublicationSchema.from_orm(publication_updated)
+                content, PublicationSchema.from_orm(publication_updated)
             )
 
     def test_update_publication(self):
@@ -107,9 +107,7 @@ class TestPublications(BaseTest):
         content = response.json()
         self.assertDictEqualsSchema(
             content,
-            ExtendedPropositionSchema.from_orm(
-                Proposition.objects.get(id=content["id"])
-            ),
+            PropositionSchema.from_orm(Proposition.objects.get(id=content["id"])),
         )
 
     def test_create_proposition_conflict(self):
@@ -137,25 +135,8 @@ class TestPublications(BaseTest):
         for item in content:
             self.assertDictEqualsSchema(
                 item,
-                ExtendedPropositionSchema.from_orm(
-                    Proposition.objects.get(id=item["id"])
-                ),
+                PropositionSchema.from_orm(Proposition.objects.get(id=item["id"])),
             )
-
-    def test_generate_presigned_url_for_upload_publications(self):
-        data = {"filename": "image.png", "content_type": "application/png"}
-
-        kwargs = {"id": self.second_index_publication_1.id}
-        response = self.client.post(
-            reverse("api:publication_propositions_upload", kwargs=kwargs),
-            data=data,
-            content_type="application/json",
-            **self.auth_user_one
-        )
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        content = response.json()
-        self.assertIsNotNone(content["object_name"])
-        self.assertIsNotNone(content["presigned_url"])
 
     def test_retrieve_my_proposition(self):
         kwargs = {"id": self.second_index_publication_2.id}
@@ -166,7 +147,5 @@ class TestPublications(BaseTest):
         content = response.json()
         self.assertDictEqualsSchema(
             content,
-            ExtendedPropositionSchema.from_orm(
-                self.second_index_publication_2_proposition_1
-            ),
+            PropositionSchema.from_orm(self.second_index_publication_2_proposition_1),
         )

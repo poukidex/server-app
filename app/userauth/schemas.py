@@ -5,12 +5,6 @@ from ninja import Schema
 from pydantic import validator
 
 
-class ErrorOutput(Schema):
-    status: int
-    message: str
-    detail: dict[str, str]
-
-
 class PasswordConfirmation(Schema):
     password: str
     password_confirmation: str
@@ -23,15 +17,15 @@ class PasswordConfirmation(Schema):
 
 
 class UserUpdate(Schema):
-    picture_object_name: Optional[str]
     username: str
     first_name: Optional[str]
     last_name: Optional[str]
+    object_name: Optional[str]
 
 
 class UserSchema(UserUpdate):
     id: UUID
-    picture_presigned_url: Optional[str]
+    presigned_url: Optional[str]
     fullname: str
 
 

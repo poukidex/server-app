@@ -1,25 +1,26 @@
 from http import HTTPStatus
 
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes, force_str
 from django.utils.html import strip_tags
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from ninja import Router
 
 from config.authentication import IDTokenBearer, JWTCoder
 from config.exceptions import IncoherentInput
-from django.contrib.auth import authenticate
-from ninja import Router
+from core.schemas import ErrorOutput
 from userauth.models import Token, User
 from userauth.schemas import (
     AccessTokenOutput,
-    PasswordResetInput,
-    PasswordResetConfirmationInput,
     IDTokenOutput,
+    PasswordResetConfirmationInput,
+    PasswordResetInput,
     SignInInput,
-    SignUpInput, ErrorOutput,
+    SignUpInput,
 )
 
 router = Router()
@@ -35,7 +36,7 @@ router = Router()
 def sign_in(_, payload: SignInInput):
     user: User = authenticate(**payload.dict())
     if not user:
-        raise IncoherentInput(detail={'password': 'Username or password incorrect.'})
+        raise IncoherentInput(detail={"password": "Username or password incorrect."})
 
     token, _ = Token.objects.get_or_create(user=user)
     return HTTPStatus.OK, IDTokenOutput(id_token=token.key)
@@ -106,7 +107,7 @@ def reset_password(_, payload: PasswordResetInput):
     try:
         user = User.objects.get(email__iexact=payload.email)
     except User.DoesNotExist:
-        raise IncoherentInput(detail={'email': 'User with this email does not exist.'})
+        raise IncoherentInput(detail={"email": "User with this email does not exist."})
 
     # Generate a one-time use token for the user's password reset request
     token_generator = default_token_generator
@@ -114,21 +115,21 @@ def reset_password(_, payload: PasswordResetInput):
     token = token_generator.make_token(user)
 
     # Generate the password reset link URL
-    password_reset_link_url = f'poukidex://reset-password/{uid}/{token}'
+    password_reset_link_url = f"poukidex://reset-password/{uid}/{token}"
 
     # Send the password reset email to the user
-    email_subject = 'Reset your password'
-    email_message = render_to_string('password_reset_email.html', {
-        'user': user,
-        'password_reset_link_url': password_reset_link_url
-    })
+    email_subject = "Reset your password"
+    email_message = render_to_string(
+        "password_reset_email.html",
+        {"user": user, "password_reset_link_url": password_reset_link_url},
+    )
     plain_message = strip_tags(email_message)
     send_mail(
         subject=email_subject,
         message=plain_message,
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[payload.email],
-        html_message=email_message
+        html_message=email_message,
     )
     return HTTPStatus.NO_CONTENT, None
 
@@ -140,7 +141,9 @@ def reset_password(_, payload: PasswordResetInput):
     url_name="confirm-reset-password",
     operation_id="confirm-reset-password",
 )
-def confirm_reset_password(_, user_id: str, token: str, payload: PasswordResetConfirmationInput):
+def confirm_reset_password(
+    _, user_id: str, token: str, payload: PasswordResetConfirmationInput
+):
     try:
         user_id = force_str(urlsafe_base64_decode(user_id))
         user = User.objects.get(pk=user_id)
@@ -152,4 +155,6 @@ def confirm_reset_password(_, user_id: str, token: str, payload: PasswordResetCo
         user.save()
         return HTTPStatus.NO_CONTENT, None
     else:
-        raise IncoherentInput(detail={'password_confirmation': 'Invalid password reset link.'})
+        raise IncoherentInput(
+            detail={"password_confirmation": "Invalid password reset link."}
+        )

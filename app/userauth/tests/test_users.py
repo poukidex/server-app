@@ -1,7 +1,8 @@
 from http import HTTPStatus
 
-from config.tests.base_test import BaseTest
 from django.urls import reverse
+
+from config.tests.base_test import BaseTest
 from userauth.models import User
 from userauth.schemas import UserSchema
 
@@ -37,23 +38,13 @@ class TestUsers(BaseTest):
             UserSchema.from_orm(User.objects.get(id=content["id"], is_superuser=False)),
         )
 
-    def test_generate_presigned_url_for_upload_indexes(self):
-        data = {"filename": "image.png", "content_type": "application/png"}
-
-        kwargs = {}
-        response = self.client.post(
-            reverse("api:user_picture_upload", kwargs=kwargs),
-            data=data,
-            content_type="application/json",
-            **self.auth_user_one
-        )
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        content = response.json()
-        self.assertIsNotNone(content["object_name"])
-        self.assertIsNotNone(content["presigned_url"])
-
     def test_update_profile(self):
-        data = {"picture_object_name": "some_object_name"}
+        data = {
+            "object_name": "some_object_name",
+            "username": "new-username",
+            "first_name": "antoine",
+            "last_name": "dupont",
+        }
         response = self.client.put(
             reverse("api:my_user"),
             data=data,
@@ -68,7 +59,10 @@ class TestUsers(BaseTest):
             content,
             UserSchema.from_orm(user),
         )
-        self.assertEqual(user.picture_object_name, "some_object_name")
+        self.assertEqual(user.object_name, "some_object_name")
+        self.assertEqual(user.username, "new-username")
+        self.assertEqual(user.first_name, "antoine")
+        self.assertEqual(user.last_name, "dupont")
         self.assertEqual(
-            content["picture_presigned_url"], "presigned_url"
+            content["presigned_url"], "presigned_url"
         )  # mock return 'presigned_url'

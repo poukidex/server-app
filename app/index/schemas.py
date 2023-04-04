@@ -2,17 +2,21 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from django.db import models
-from ninja import Field, Schema
+from ninja import Schema
+
+from core.enums import ValidationMode
 from userauth.schemas import UserSchema
+
+
+# ======================================================================================
+# Approbation
+# ======================================================================================
+class ApprobationQuery(Schema):
+    approved: Optional[bool]
 
 
 class ApprobationInput(Schema):
     approved: bool
-
-
-class ApprobationQuery(Schema):
-    approved: Optional[bool]
 
 
 class ApprobationSchema(Schema):
@@ -21,78 +25,74 @@ class ApprobationSchema(Schema):
     approved: bool
 
 
-class ImageUploadInput(Schema):
-    filename: str
-    content_type: str
-
-
-class PresignedUrlFile(Schema):
-    url: str
-    fields: dict[str, str]
-
-
-class ImageUploadSchema(Schema):
-    object_name: str
-    presigned_url: PresignedUrlFile
-
-
+# ======================================================================================
+# Proposition
+# ======================================================================================
 class PropositionInput(Schema):
     object_name: str
     comment: str
     dominant_colors: Optional[dict]
 
 
-class PropositionUpdate(PropositionInput):
-    pass
+class PropositionUpdate(Schema):
+    object_name: str
+    comment: str
+    dominant_colors: Optional[dict]
 
 
-class PropositionSchema(PropositionInput):
+class PropositionSchema(Schema):
     id: UUID
     created_at: datetime
     user: UserSchema
+    comment: str
+    dominant_colors: Optional[dict]
+
     presigned_url: str
     nb_likes: Optional[int] = 0
     nb_dislikes: Optional[int] = 0
 
 
-class ExtendedPropositionSchema(PropositionSchema):
-    pass
-
-
+# ======================================================================================
+# Publication
+# ======================================================================================
 class PublicationInput(Schema):
-    object_name: str
     name: str
     description: str
+    object_name: str
     dominant_colors: Optional[dict]
 
 
-class PublicationUpdate(PublicationInput):
-    pass
+class PublicationUpdate(Schema):
+    name: str
+    description: str
+    object_name: str
+    dominant_colors: Optional[dict]
 
 
-class PublicationSchema(PublicationInput):
+class PublicationSchema(Schema):
     id: UUID
+    name: str
+    description: str
     created_at: datetime
+    dominant_colors: Optional[dict]
+
     presigned_url: str
     nb_captures: Optional[int] = 0
 
 
-class ExtendedPublicationSchema(PublicationSchema):
-    pass
-
-
-class ValidationMode(models.TextChoices):
-    Manual = "Manual"
-    Everything = "Everything"
-
-
+# ======================================================================================
+# Index
+# ======================================================================================
 class IndexInput(Schema):
     name: str
     description: str
+    object_name: Optional[str]
 
 
-class IndexUpdate(IndexInput):
-    pass
+class IndexUpdate(Schema):
+    name: str
+    description: str
+    object_name: Optional[str]
 
 
 class IndexSchema(Schema):
@@ -102,8 +102,6 @@ class IndexSchema(Schema):
     created_at: datetime
     creator: UserSchema
     validation_mode: ValidationMode
+
+    presigned_url: Optional[str]
     nb_items: Optional[int] = 0
-
-
-class ExtendedIndexSchema(IndexSchema):
-    pass

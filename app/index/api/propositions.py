@@ -1,22 +1,21 @@
 from http import HTTPStatus
 from uuid import UUID
 
+from django.db.models import Count, Q
+from ninja import Query, Router, Schema
 from ninja.pagination import paginate
 
-from config.exceptions import ForbiddenException, IncoherentInput
-from django.db.models import Count, Q
-from ninja import Router, Query, Schema
-
+from config.exceptions import ForbiddenException
 from config.pagination import OverpoweredPagination
+from core.utils import update_object_from_schema
 from index.models import Approbation, Proposition
 from index.schemas import (
     ApprobationInput,
+    ApprobationQuery,
     ApprobationSchema,
-    ExtendedPropositionSchema,
+    PropositionSchema,
     PropositionUpdate,
-    ApprobationQuery
 )
-from index.utils import update_object_from_schema
 
 router = Router()
 
@@ -24,7 +23,7 @@ router = Router()
 @router.get(
     path="/{id}",
     url_name="proposition",
-    response={HTTPStatus.OK: ExtendedPropositionSchema},
+    response={HTTPStatus.OK: PropositionSchema},
     operation_id="get_capture",
 )
 def retrieve_proposition(request, id: UUID):
@@ -37,7 +36,7 @@ def retrieve_proposition(request, id: UUID):
 @router.put(
     path="/{id}",
     url_name="proposition",
-    response={HTTPStatus.OK: ExtendedPropositionSchema},
+    response={HTTPStatus.OK: PropositionSchema},
     operation_id="update_capture",
 )
 def update_proposition(request, id: UUID, payload: PropositionUpdate):
@@ -105,7 +104,9 @@ def approve_proposition(request, id: UUID, payload: ApprobationInput):
     operation_id="get_reaction_list",
 )
 @paginate(OverpoweredPagination)
-def list_approbations(request, id: UUID, filters: ApprobationQuery = Query(default=Schema())):
+def list_approbations(
+    request, id: UUID, filters: ApprobationQuery = Query(default=Schema())
+):
     filters_dict: dict = filters.dict(exclude_unset=True)
     return Approbation.objects.filter(proposition_id=id, **filters_dict)
 

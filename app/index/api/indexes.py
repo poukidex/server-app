@@ -1,35 +1,28 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from config.exceptions import ForbiddenException
-from config.pagination import OverpoweredPagination
 from django.db.models import Count
 from ninja import Router
 from ninja.pagination import paginate
 
-from index.api.utils import generate_presigned_url_for_object
+from config.exceptions import ForbiddenException
+from config.pagination import OverpoweredPagination
+from core.utils import check_object, update_object_from_schema
 from index.models import Index, Publication
 from index.schemas import (
-    ExtendedIndexSchema,
-    ExtendedPublicationSchema,
-    ImageUploadInput,
-    ImageUploadSchema,
     IndexInput,
     IndexSchema,
     IndexUpdate,
     PublicationInput,
     PublicationSchema,
 )
-from index.utils import check_object, update_object_from_schema
 
 router = Router()
 
 
 @router.get(
     path="",
-    response={
-        HTTPStatus.OK: list[IndexSchema]
-    },
+    response={HTTPStatus.OK: list[IndexSchema]},
     url_name="indexes",
     operation_id="get_collection_list",
 )
@@ -40,7 +33,7 @@ def list_indexes(request):
 
 @router.post(
     path="",
-    response={HTTPStatus.CREATED: ExtendedIndexSchema},
+    response={HTTPStatus.CREATED: IndexSchema},
     url_name="indexes",
     operation_id="create_collection",
 )
@@ -54,17 +47,19 @@ def create_index(request, payload: IndexInput):
 
 @router.get(
     path="/{id}",
-    response={HTTPStatus.OK: ExtendedIndexSchema},
+    response={HTTPStatus.OK: IndexSchema},
     url_name="index",
     operation_id="get_collection",
 )
 def retrieve_index(request, id: UUID):
-    return HTTPStatus.OK, Index.objects.annotate(nb_items=Count("publications")).get(id=id)
+    return HTTPStatus.OK, Index.objects.annotate(nb_items=Count("publications")).get(
+        id=id
+    )
 
 
 @router.put(
     path="/{id}",
-    response={HTTPStatus.OK: ExtendedIndexSchema},
+    response={HTTPStatus.OK: IndexSchema},
     url_name="index",
     operation_id="update_collection",
 )
@@ -98,7 +93,7 @@ def delete_index(request, id: UUID):
 
 @router.post(
     path="/{id}/publications",
-    response={HTTPStatus.CREATED: ExtendedPublicationSchema},
+    response={HTTPStatus.CREATED: PublicationSchema},
     url_name="index_publications",
     operation_id="create_item",
 )
@@ -117,19 +112,6 @@ def add_publication(request, id: UUID, payload: PublicationInput):
     return HTTPStatus.CREATED, publication
 
 
-@router.post(
-    path="/{id}/publications/upload",
-    url_name="index_publications_upload",
-    response={HTTPStatus.OK: ImageUploadSchema},
-    operation_id="generate_item_presigned_url",
-)
-def generate_presigned_url_for_upload(request, id: UUID, payload: ImageUploadInput):
-    index: Index = Index.objects.get(id=id)
-    return generate_presigned_url_for_object(
-        index, payload.filename, payload.content_type
-    )
-
-
 @router.get(
     path="/{id}/publications",
     response={HTTPStatus.OK: list[PublicationSchema]},
@@ -138,4 +120,6 @@ def generate_presigned_url_for_upload(request, id: UUID, payload: ImageUploadInp
 )
 @paginate(OverpoweredPagination)
 def list_publications(request, id: UUID):
-    return Publication.objects.annotate(nb_captures=Count("propositions")).filter(index_id=id)
+    return Publication.objects.annotate(nb_captures=Count("propositions")).filter(
+        index_id=id
+    )

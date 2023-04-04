@@ -1,16 +1,11 @@
 from http import HTTPStatus
 
-from config.tests.base_test import BaseTest
 from django.db.models import Count
 from django.urls import reverse
 
+from config.tests.base_test import BaseTest
 from index.models import Index, Publication
-from index.schemas import (
-    ExtendedIndexSchema,
-    ExtendedPublicationSchema,
-    IndexSchema,
-    ValidationMode,
-)
+from index.schemas import IndexSchema, PublicationSchema, ValidationMode
 
 
 class TestIndexes(BaseTest):
@@ -52,7 +47,7 @@ class TestIndexes(BaseTest):
         self.assertEqual(response.status_code, HTTPStatus.CREATED)
         content = response.json()
         new_index = Index.objects.get(name="new-index")
-        self.assertDictEqualsSchema(content, ExtendedIndexSchema.from_orm(new_index))
+        self.assertDictEqualsSchema(content, IndexSchema.from_orm(new_index))
 
     def test_retrieve_index(self):
         kwargs = {"id": self.first_index.id}
@@ -61,9 +56,7 @@ class TestIndexes(BaseTest):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
-        self.assertDictEqualsSchema(
-            content, ExtendedIndexSchema.from_orm(self.first_index)
-        )
+        self.assertDictEqualsSchema(content, IndexSchema.from_orm(self.first_index))
 
     def test_update_index(self):
         data = {"name": "new-name", "description": "description"}
@@ -79,9 +72,7 @@ class TestIndexes(BaseTest):
 
         index_updated = Index.objects.get(id=self.first_index.id)
 
-        self.assertDictEqualsSchema(
-            content, ExtendedIndexSchema.from_orm(index_updated)
-        )
+        self.assertDictEqualsSchema(content, IndexSchema.from_orm(index_updated))
 
     def test_update_index_forbidden(self):
         data = {"name": "new-name", "description": "description"}
@@ -127,9 +118,7 @@ class TestIndexes(BaseTest):
         content = response.json()
         self.assertDictEqualsSchema(
             content,
-            ExtendedPublicationSchema.from_orm(
-                Publication.objects.get(id=content["id"])
-            ),
+            PublicationSchema.from_orm(Publication.objects.get(id=content["id"])),
         )
 
     def test_create_publication_forbidden(self):
@@ -158,24 +147,9 @@ class TestIndexes(BaseTest):
         for item in content:
             self.assertDictEqualsSchema(
                 item,
-                ExtendedPublicationSchema.from_orm(
+                PublicationSchema.from_orm(
                     Publication.objects.annotate(nb_captures=Count("propositions")).get(
                         id=item["id"]
                     )
                 ),
             )
-
-    def test_generate_presigned_url_for_upload_indexes(self):
-        data = {"filename": "image.png", "content_type": "application/png"}
-
-        kwargs = {"id": self.second_index.id}
-        response = self.client.post(
-            reverse("api:index_publications_upload", kwargs=kwargs),
-            data=data,
-            content_type="application/json",
-            **self.auth_user_one
-        )
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        content = response.json()
-        self.assertIsNotNone(content["object_name"])
-        self.assertIsNotNone(content["presigned_url"])
