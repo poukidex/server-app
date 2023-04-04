@@ -1,10 +1,17 @@
 from datetime import datetime
 from typing import Optional
-from uuid import UUID
 
 from ninja import Schema
 
 from core.enums import ValidationMode
+from core.schemas import (
+    IdentifiableOutput,
+    OptionalStorableInput,
+    OptionalStorableOutput,
+    RepresentableOutput,
+    StorableInput,
+    StorableOutput,
+)
 from userauth.schemas import UserSchema
 
 
@@ -28,26 +35,19 @@ class ApprobationSchema(Schema):
 # ======================================================================================
 # Proposition
 # ======================================================================================
-class PropositionInput(Schema):
-    object_name: str
+class PropositionInput(StorableInput):
     comment: str
-    dominant_colors: Optional[dict]
 
 
-class PropositionUpdate(Schema):
-    object_name: str
+class PropositionUpdate(StorableInput):
     comment: str
-    dominant_colors: Optional[dict]
 
 
-class PropositionSchema(Schema):
-    id: UUID
+class PropositionSchema(IdentifiableOutput, StorableOutput):
     created_at: datetime
     user: UserSchema
     comment: str
-    dominant_colors: Optional[dict]
 
-    presigned_url: str
     nb_likes: Optional[int] = 0
     nb_dislikes: Optional[int] = 0
 
@@ -55,53 +55,33 @@ class PropositionSchema(Schema):
 # ======================================================================================
 # Publication
 # ======================================================================================
-class PublicationInput(Schema):
-    name: str
-    description: str
-    object_name: str
-    dominant_colors: Optional[dict]
+class PublicationInput(RepresentableOutput, StorableInput):
+    pass
 
 
-class PublicationUpdate(Schema):
-    name: str
-    description: str
-    object_name: str
-    dominant_colors: Optional[dict]
+class PublicationUpdate(RepresentableOutput, StorableInput):
+    pass
 
 
-class PublicationSchema(Schema):
-    id: UUID
-    name: str
-    description: str
+class PublicationSchema(IdentifiableOutput, RepresentableOutput, StorableOutput):
     created_at: datetime
-    dominant_colors: Optional[dict]
-
-    presigned_url: str
     nb_captures: Optional[int] = 0
 
 
 # ======================================================================================
 # Index
 # ======================================================================================
-class IndexInput(Schema):
-    name: str
-    description: str
-    object_name: Optional[str]
+class IndexInput(RepresentableOutput, OptionalStorableInput):
+    pass
 
 
-class IndexUpdate(Schema):
-    name: str
-    description: str
-    object_name: Optional[str]
+class IndexUpdate(RepresentableOutput, OptionalStorableInput):
+    pass
 
 
-class IndexSchema(Schema):
-    id: UUID
-    name: str
-    description: str
+class IndexSchema(IdentifiableOutput, RepresentableOutput, OptionalStorableOutput):
     created_at: datetime
     creator: UserSchema
     validation_mode: ValidationMode
 
-    presigned_url: Optional[str]
     nb_items: Optional[int] = 0

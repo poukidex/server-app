@@ -31,8 +31,6 @@ class Publication(Identifiable, Representable, Traceable, Storable):
         Index, on_delete=models.CASCADE, related_name="publications"
     )
 
-    dominant_colors = models.JSONField(null=True, blank=True)
-
     def __str__(self):
         return f"Publication {self.name} of {self.index}"
 
@@ -55,8 +53,6 @@ class Proposition(Identifiable, Traceable, Storable):
     )
 
     comment = models.CharField(max_length=255)
-
-    dominant_colors = models.JSONField(null=True, blank=True)
 
     object_name = models.CharField(max_length=255)
 
