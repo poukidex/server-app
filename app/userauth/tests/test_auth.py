@@ -1,9 +1,10 @@
 from http import HTTPStatus
 
-from config.authentication import JWTCoder
-from config.tests.base_test import BaseTest
 from django.contrib.auth.models import AbstractUser
 from django.urls import reverse
+
+from config.authentication import JWTCoder
+from config.tests.base_test import BaseTest
 from userauth.models import Token, User
 
 
@@ -63,7 +64,7 @@ class TestAuth(BaseTest):
         kwargs = {}
         response = self.client.post(
             reverse("api:refresh-access-token", kwargs=kwargs),
-            **self._generate_auth_user_by_token(self.token_one)
+            **BaseTest._generate_auth_user_by_token(self.token_one)
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
 

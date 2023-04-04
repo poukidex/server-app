@@ -7,8 +7,7 @@ from ninja import Schema
 from orjson import orjson
 
 from config.authentication import JWTCoder
-from index.models import Index, PendingPublication, Proposition, Publication
-from index.schemas import ValidationMode
+from poukidex.models import Collection, Item, PendingItem, Snap
 from userauth.models import Token, User
 
 
@@ -27,11 +26,15 @@ class BaseTest(TestCase):
 
     previous_level: int
 
-    second_index: Index
-    first_index: Index
+    second_collection: Collection
+    first_collection: Collection
 
-    second_index_publication_1: Publication
-    second_index_publication_2: Publication
+    second_collection_item_1: Item
+    second_collection_item_2: Item
+    second_collection_item_2_snap_1: Snap
+    second_collection_item_2_snap_2: Snap
+
+    second_collection_pending_item: PendingItem
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -71,51 +74,49 @@ class BaseTest(TestCase):
         cls.auth_user_two = cls._generate_auth_user(cls.token_two)
         cls.auth_user_three = cls._generate_auth_user(cls.token_three)
 
-        cls.first_index = Index.objects.create(
+        cls.first_collection = Collection.objects.create(
             creator=cls.user_one,
-            name="first-index",
+            name="first-collection",
             description="some",
-            validation_mode=ValidationMode.Manual,
         )
 
-        cls.second_index = Index.objects.create(
+        cls.second_collection = Collection.objects.create(
             creator=cls.user_one,
-            name="second-index",
+            name="second-collection",
             description="some",
-            validation_mode=ValidationMode.Manual,
         )
 
-        cls.second_index_publication_1 = Publication.objects.create(
-            index=cls.second_index,
+        cls.second_collection_item_1 = Item.objects.create(
+            collection=cls.second_collection,
             name="some-name",
             description="description",
             object_name="object_name",
         )
 
-        cls.second_index_publication_2 = Publication.objects.create(
-            index=cls.second_index,
+        cls.second_collection_item_2 = Item.objects.create(
+            collection=cls.second_collection,
             name="some-name2",
             description="description",
             object_name="object_name",
         )
 
-        cls.second_index_pending_publication = PendingPublication.objects.create(
-            index=cls.second_index,
+        cls.second_collection_pending_item = PendingItem.objects.create(
+            collection=cls.second_collection,
             name="some-name3",
             description="description",
             object_name="object_name",
             creator=cls.user_two,
         )
 
-        cls.second_index_publication_2_proposition_1 = Proposition.objects.create(
-            publication=cls.second_index_publication_2,
+        cls.second_collection_item_2_snap_1 = Snap.objects.create(
+            item=cls.second_collection_item_2,
             user=cls.user_one,
             comment="Random comment",
             object_name="some object_name",
         )
 
-        cls.second_index_publication_2_proposition_2 = Proposition.objects.create(
-            publication=cls.second_index_publication_2,
+        cls.second_collection_item_2_snap_2 = Snap.objects.create(
+            item=cls.second_collection_item_2,
             user=cls.user_two,
             comment="Random comment of user two",
             object_name="some object_name",
@@ -143,5 +144,6 @@ class BaseTest(TestCase):
         token = JWTCoder.encode(id_token=token.key)
         return {"HTTP_AUTHORIZATION": f"Bearer {token}"}
 
-    def _generate_auth_user_by_token(self, token: Token):
+    @staticmethod
+    def _generate_auth_user_by_token(token: Token):
         return {"HTTP_AUTHORIZATION": f"Bearer {token.key}"}

@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "userauth",
-    "index",
+    "poukidex",
 ]
 
 MIDDLEWARE = [
@@ -151,8 +151,8 @@ CACHES = {
 # ======================================================================================
 # Email
 # ======================================================================================
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
@@ -168,7 +168,7 @@ debug_loggers = os.getenv("DEBUG_LOGGERS", "")
 handlers_loglevel = loglevel if not debug_loggers else "DEBUG"
 
 # Adding simple formatter
-LOGGING["formatters"]["index"] = {
+LOGGING["formatters"]["poukidex"] = {
     "format": "{asctime} [{name}] {levelname}: {message}",
     "style": "{",
 }
@@ -183,11 +183,11 @@ LOGGING["handlers"]["console_debug_false"] = {
     "class": "logging.StreamHandler",
 }
 
-# Adding console handler for index
-LOGGING["handlers"]["index"] = {
+# Adding console handler for poukidex
+LOGGING["handlers"]["poukidex"] = {
     "level": handlers_loglevel,
     "class": "logging.StreamHandler",
-    "formatter": "index",
+    "formatter": "poukidex",
 }
 
 # Setting default logger log level by env variable
@@ -202,16 +202,16 @@ LOGGING["loggers"]["django.template"] = {
     "level": loglevel if loglevel != "DEBUG" else "INFO",
 }
 
-# Set index loggers like django ones
-LOGGING["loggers"]["index"] = {
-    "handlers": ["index"],
+# Set poukidex loggers like django ones
+LOGGING["loggers"]["poukidex"] = {
+    "handlers": ["poukidex"],
     "level": loglevel,
 }
 
 # Set specified loggers to DEBUG level
 for logger in debug_loggers.split(",") if debug_loggers else []:
     if logger not in LOGGING["loggers"]:
-        if logger.startswith("django.") or logger.startswith("index."):
+        if logger.startswith("django.") or logger.startswith("poukidex."):
             LOGGING["loggers"][logger] = {}
         else:
             LOGGING["loggers"][logger] = {
