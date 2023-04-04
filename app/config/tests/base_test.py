@@ -1,15 +1,15 @@
 import json
 import logging
 
-from config.authentication import JWTCoder
 from django.contrib.auth.models import AbstractUser
 from django.test import TestCase
 from ninja import Schema
 from orjson import orjson
-from userauth.models import Token, User
 
-from index.models import Index, Proposition, Publication
+from config.authentication import JWTCoder
+from index.models import Index, PendingPublication, Proposition, Publication
 from index.schemas import ValidationMode
+from userauth.models import Token, User
 
 
 class BaseTest(TestCase):
@@ -20,6 +20,10 @@ class BaseTest(TestCase):
     user_two: AbstractUser
     user_two_pwd: str
     token_two: Token
+
+    user_three: AbstractUser
+    user_three_pwd: str
+    token_three: Token
 
     previous_level: int
 
@@ -42,6 +46,7 @@ class BaseTest(TestCase):
         super(BaseTest, cls).setUpTestData()
         cls.user_one_pwd = "password-one"
         cls.user_two_pwd = "password-two"
+        cls.user_three_pwd = "password-three"
 
         cls.user_one = User.objects.create_user(
             username="user-one",
@@ -55,9 +60,16 @@ class BaseTest(TestCase):
             email="user-two@picsellia.com",
         )
         cls.token_two = Token.objects.create(user=cls.user_two)
+        cls.user_three = User.objects.create_user(
+            username="user-three",
+            password=cls.user_three_pwd,
+            email="user-three@picsellia.com",
+        )
+        cls.token_three = Token.objects.create(user=cls.user_three)
 
         cls.auth_user_one = cls._generate_auth_user(cls.token_one)
         cls.auth_user_two = cls._generate_auth_user(cls.token_two)
+        cls.auth_user_three = cls._generate_auth_user(cls.token_three)
 
         cls.first_index = Index.objects.create(
             creator=cls.user_one,
@@ -85,6 +97,14 @@ class BaseTest(TestCase):
             name="some-name2",
             description="description",
             object_name="object_name",
+        )
+
+        cls.second_index_pending_publication = PendingPublication.objects.create(
+            index=cls.second_index,
+            name="some-name3",
+            description="description",
+            object_name="object_name",
+            creator=cls.user_two,
         )
 
         cls.second_index_publication_2_proposition_1 = Proposition.objects.create(

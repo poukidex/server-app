@@ -8,11 +8,12 @@ from ninja.pagination import paginate
 from config.exceptions import ForbiddenException
 from config.pagination import OverpoweredPagination
 from core.utils import check_object, update_object_from_schema
-from index.models import Index, Publication
+from index.models import Index, PendingPublication, Publication
 from index.schemas import (
     IndexInput,
     IndexSchema,
     IndexUpdate,
+    PendingPublicationSchema,
     PublicationInput,
     PublicationSchema,
 )
@@ -92,18 +93,54 @@ def delete_index(request, id: UUID):
 
 
 @router.post(
+    path="/{id}/pending-publications",
+    response={HTTPStatus.CREATED: PendingPublicationSchema},
+    url_name="index_pending_publications",
+    operation_id="create_pending_item",
+)
+def add_pending_publication(request, id: UUID, payload: PublicationInput):
+    index = Index.objects.get(id=id)
+
+    pending_publication = PendingPublication(
+        index=index, creator=request.user, **payload.dict()
+    )
+
+    check_object(pending_publication)
+
+    pending_publication.save()
+
+    return HTTPStatus.CREATED, pending_publication
+
+
+@router.get(
+    path="/{id}/pending-publications",
+    response={HTTPStatus.OK: list[PendingPublicationSchema]},
+    url_name="index_pending_publications",
+    operation_id="list_pending_items",
+)
+@paginate(OverpoweredPagination)
+def list_pending_publications(request, id: UUID):
+    index = Index.objects.get(id=id)
+
+    if request.user == index.creator:
+        return PendingPublication.objects.filter(index=index)
+    else:
+        return PendingPublication.objects.filter(index=index, creator=request.user)
+
+
+@router.post(
     path="/{id}/publications",
     response={HTTPStatus.CREATED: PublicationSchema},
     url_name="index_publications",
     operation_id="create_item",
 )
 def add_publication(request, id: UUID, payload: PublicationInput):
-    index: Index = Index.objects.get(id=id)
+    index = Index.objects.get(id=id)
 
     if index.creator != request.user:
         raise ForbiddenException()
 
-    publication: Publication = Publication(index_id=id, **payload.dict())
+    publication = Publication(index=index, **payload.dict())
 
     check_object(publication)
 

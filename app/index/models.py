@@ -1,7 +1,7 @@
 from django.db import models
 
+from core.enums import PendingPublicationStatus, ValidationMode
 from core.models import Identifiable, Representable, Storable, Traceable
-from index.schemas import ValidationMode
 from userauth.models import User
 
 
@@ -26,7 +26,14 @@ class Index(Identifiable, Representable, Traceable, Storable):
         ]
 
 
-class Publication(Identifiable, Representable, Traceable, Storable):
+class AbstractPublication(Identifiable, Representable, Traceable, Storable):
+    dominant_colors = models.JSONField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class Publication(AbstractPublication):
     index = models.ForeignKey(
         Index, on_delete=models.CASCADE, related_name="publications"
     )
@@ -41,6 +48,26 @@ class Publication(Identifiable, Representable, Traceable, Storable):
                 name="unique_publication_index_name",
             ),
         ]
+
+
+class PendingPublication(AbstractPublication):
+    index = models.ForeignKey(
+        Index, on_delete=models.CASCADE, related_name="pending_publications"
+    )
+    creator = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="pending_publications",
+    )
+    status = models.TextField(
+        choices=PendingPublicationStatus.choices,
+        default=PendingPublicationStatus.PENDING,
+    )
+
+    def __str__(self):
+        return f"Pending publication {self.name} of {self.index} from {self.creator}"
 
 
 class Proposition(Identifiable, Traceable, Storable):
