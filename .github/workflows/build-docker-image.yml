@@ -20,7 +20,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images: ghcr.io/frontstreet-boys/pookiedex
+        images: ghcr.io/frontstreet-boys/poukidex
         tags: |
           type=semver,pattern={{version}}
           type=raw,value=production
@@ -42,5 +42,5 @@ jobs:
         pull: true
         push: true
         tags: ${{ steps.meta.outputs.tags }}
-        cache-from: type=registry,ref=ghcr.io/frontstreet-boys/pookiedex:buildcache
-        cache-to: type=registry,ref=ghcr.io/frontstreet-boys/pookiedex:buildcache,mode=max
+        cache-from: type=registry,ref=ghcr.io/frontstreet-boys/poukidex:buildcache
+        cache-to: type=registry,ref=ghcr.io/frontstreet-boys/poukidex:buildcache,mode=max
