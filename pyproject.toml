@@ -6,9 +6,9 @@ src_paths = ["app"]
 all = true
 
 [tool.poetry]
-name = "pookiedex"
+name = "poukidex"
 version = "0.1.0"
-description = "Backend of Pookiedex app"
+description = "Backend of Poukidex app"
 authors = ["Thomas Darget <thomasdarget@hotmail.fr>", "Hicham Bakri"]
 readme = "README.md"
 
