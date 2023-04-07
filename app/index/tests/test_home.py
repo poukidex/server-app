@@ -30,6 +30,8 @@ class TestHome(BaseTest):
             object_name="some object_name",
             created_at=d1,
         )
+        proposition_1.created_at = d1
+        proposition_1.save()
 
         d2 = datetime.now(tz=timezone.utc) - timedelta(minutes=10)
         proposition_2 = Proposition.objects.create(
@@ -37,8 +39,9 @@ class TestHome(BaseTest):
             user=self.user_one,
             comment="Random comment",
             object_name="some object_name",
-            created_at=d2,
         )
+        proposition_2.created_at = d2
+        proposition_2.save()
 
         d3 = datetime.now(tz=timezone.utc)
         proposition_3 = Proposition.objects.create(
@@ -48,6 +51,8 @@ class TestHome(BaseTest):
             object_name="some object_name",
             created_at=d3,
         )
+        proposition_3.created_at = d3
+        proposition_3.save()
 
         url = reverse("api:feed") + "?order_by=created_at"
         if since_datetime:

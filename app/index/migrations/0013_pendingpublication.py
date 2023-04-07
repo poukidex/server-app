@@ -11,7 +11,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("index", "0011_index_object_name_alter_publication_name_and_more"),
+        ("index", "0012_index_dominant_colors_alter_approbation_created_at_and_more"),
     ]
 
     operations = [
