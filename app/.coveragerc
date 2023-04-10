@@ -13,7 +13,7 @@ omit =
     core/api/tests/*.py
 
 include =
-    index/api/*.py
+    poukidex/api/*.py
     userauth/api/*.py
 
 [html]

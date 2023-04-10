@@ -66,3 +66,11 @@ class PasswordResetInput(Schema):
 
 class PasswordResetConfirmationInput(PasswordConfirmation):
     pass
+
+
+class DeviceInput(Schema):
+    token: str
+
+
+class DeviceOutput(Schema):
+    registration_id: str

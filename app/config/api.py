@@ -14,6 +14,7 @@ from poukidex.api.items import router as items_router
 from poukidex.api.pending_items import router as pending_items_router
 from poukidex.api.snaps import router as snaps_router
 from userauth.api.auth import router as auth_router
+from userauth.api.devices import router as devices_router
 from userauth.api.users import router as users_router
 
 api = NinjaAPI(
@@ -30,6 +31,7 @@ api.add_router("pending-items", pending_items_router, tags=["item"])
 api.add_router("snaps", snaps_router, tags=["snap"])
 api.add_router("auth", auth_router, tags=["auth"])
 api.add_router("users", users_router, tags=["user"])
+api.add_router("devices", devices_router, tags=["devices"])
 
 
 @api.exception_handler(ValidationError)

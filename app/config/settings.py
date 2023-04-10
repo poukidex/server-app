@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "userauth",
+    "push_notifications",
     "poukidex",
 ]
 
@@ -239,6 +240,16 @@ if JWT_EXPIRES_IN is None:
 S3_ENV = os.getenv("S3_ENV", "mock")
 GCP_BUCKET_NAME = os.getenv("GCP_BUCKET_NAME")
 GCP_SECRETS_PATH = os.getenv("GCP_SECRETS_PATH")
+
+
+# ======================================================================================
+# NOTIFIER
+# ======================================================================================
+PUSH_NOTIFICATIONS_SETTINGS = {
+    "FCM_API_KEY": os.getenv("FCM_API_KEY"),
+}
+FCM_ENV = os.getenv("FCM_ENV", "mock")
+
 
 CREATION_TOKEN_PASSWORD = os.getenv("CREATION_TOKEN_PASSWORD")
 if CREATION_TOKEN_PASSWORD is None:
