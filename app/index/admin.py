@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from index.models import Approbation, Index, Proposition, Publication
@@ -25,10 +26,12 @@ class UserAdmin(DjangoUserAdmin):
                     "id",
                     "username",
                     "password",
-                    "first_name",
-                    "last_name",
                 )
             },
+        ),
+        (
+            _("Information"),
+            {"fields": ("first_name", "last_name", "object_name", "picture_preview")},
         ),
         (
             _("Permissions"),
@@ -62,4 +65,26 @@ class UserAdmin(DjangoUserAdmin):
     search_fields = ("username",)
     ordering = ("username",)
 
-    readonly_fields = "id"
+    readonly_fields = ("id", "picture_preview")
+
+    def icon(self, obj):
+        return (
+            mark_safe(
+                f'<img style="border-radius: 20%; object-fit: cover;" src="{obj.presigned_url}" width=40 height=40 />'
+            )
+            if obj.object_name
+            else None
+        )
+
+    icon.short_description = "Picture"
+
+    def picture_preview(self, obj):
+        return (
+            mark_safe(
+                f'<img style="border-radius: 25%; object-fit: cover;" src="{obj.presigned_url}" width=150 height=150 />'
+            )
+            if obj.object_name
+            else None
+        )
+
+    picture_preview.short_description = "Preview"
