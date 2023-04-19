@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
 from ninja import Schema
 
@@ -44,6 +45,7 @@ class PropositionUpdate(StorableInput):
 
 
 class PropositionSchema(IdentifiableOutput, StorableOutput):
+    publication_id: UUID
     created_at: datetime
     user: UserSchema
     comment: str
