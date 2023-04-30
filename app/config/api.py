@@ -6,13 +6,13 @@ from ninja import NinjaAPI
 from ninja.errors import ValidationError
 
 from config.authentication import AccessTokenBearer
-from config.exceptions import IndexException
+from config.exceptions import PoukidexException
 from config.renderer import ORJSONRenderer
-from index.api.home import router as home_router
-from index.api.indexes import router as index_router
-from index.api.pending_publications import router as pending_publication_router
-from index.api.propositions import router as proposition_router
-from index.api.publications import router as publication_router
+from poukidex.api.collections import router as collections_router
+from poukidex.api.home import router as home_router
+from poukidex.api.items import router as items_router
+from poukidex.api.pending_items import router as pending_items_router
+from poukidex.api.snaps import router as snaps_router
 from userauth.api.auth import router as auth_router
 from userauth.api.users import router as users_router
 
@@ -24,10 +24,10 @@ api = NinjaAPI(
 )
 
 api.add_router("home", home_router, tags=["home"])
-api.add_router("indexes", index_router, tags=["index"])
-api.add_router("publications", publication_router, tags=["publication"])
-api.add_router("pending-publications", pending_publication_router, tags=["publication"])
-api.add_router("propositions", proposition_router, tags=["proposition"])
+api.add_router("collections", collections_router, tags=["collection"])
+api.add_router("items", items_router, tags=["item"])
+api.add_router("pending-items", pending_items_router, tags=["item"])
+api.add_router("snaps", snaps_router, tags=["snap"])
 api.add_router("auth", auth_router, tags=["auth"])
 api.add_router("users", users_router, tags=["user"])
 
@@ -42,8 +42,8 @@ def api_handler_validation_error(request, exc: ValidationError):
     )
 
 
-@api.exception_handler(IndexException)
-def api_handler_index_exception(request, exc: IndexException):
+@api.exception_handler(PoukidexException)
+def api_handler_poukidex_exception(request, exc: PoukidexException):
     if exc.status in [HTTPStatus.INTERNAL_SERVER_ERROR]:
         logging.exception("INTERNAL SERVER ERROR")
     return api.create_response(

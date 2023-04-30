@@ -1,12 +1,7 @@
 from django.db import models
 
 
-class ValidationMode(models.TextChoices):
-    Manual = "Manual"
-    Everything = "Everything"
-
-
-class PendingPublicationStatus(models.TextChoices):
+class PendingItemStatus(models.TextChoices):
     PENDING = "pending"
     ACCEPTED = "accepted"
     REFUSED = "refused"
