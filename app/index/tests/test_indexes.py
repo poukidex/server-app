@@ -4,8 +4,13 @@ from django.db.models import Count
 from django.urls import reverse
 
 from config.tests.base_test import BaseTest
-from index.models import Index, Publication
-from index.schemas import IndexSchema, PublicationSchema, ValidationMode
+from index.models import Index, PendingPublication, Publication
+from index.schemas import (
+    IndexSchema,
+    PendingPublicationSchema,
+    PublicationSchema,
+    ValidationMode,
+)
 
 
 class TestIndexes(BaseTest):
@@ -101,6 +106,34 @@ class TestIndexes(BaseTest):
         )
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
+    def _do_test_create_pending_publication(self, auth_user):
+        data = {
+            "name": "publication4",
+            "description": "some description of this publication",
+            "object_name": "an object_name somewhere",
+        }
+        kwargs = {"id": self.first_index.id}
+        response = self.client.post(
+            reverse("api:index_pending_publications", kwargs=kwargs),
+            data=data,
+            content_type="application/json",
+            **auth_user
+        )
+        self.assertEqual(response.status_code, HTTPStatus.CREATED)
+        content = response.json()
+        self.assertDictEqualsSchema(
+            content,
+            PendingPublicationSchema.from_orm(
+                PendingPublication.objects.get(id=content["id"])
+            ),
+        )
+
+    def test_create_pending_publication_owner(self):
+        self._do_test_create_pending_publication(self.auth_user_one)
+
+    def test_create_pending_publication_user(self):
+        self._do_test_create_pending_publication(self.auth_user_two)
+
     def test_create_publication(self):
         data = {
             "name": "publication1",
@@ -120,6 +153,31 @@ class TestIndexes(BaseTest):
             content,
             PublicationSchema.from_orm(Publication.objects.get(id=content["id"])),
         )
+
+    def _do_test_list_pending_publications(self, auth_user, expected_number):
+        kwargs = {"id": self.second_index.id}
+        response = self.client.get(
+            reverse("api:index_pending_publications", kwargs=kwargs), **auth_user
+        )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        content = response.json()["items"]
+        self.assertEqual(len(content), expected_number)
+        for item in content:
+            self.assertDictEqualsSchema(
+                item,
+                PendingPublicationSchema.from_orm(
+                    PendingPublication.objects.get(id=item["id"])
+                ),
+            )
+
+    def test_list_pending_publications_owner(self):
+        self._do_test_list_pending_publications(self.auth_user_one, 1)
+
+    def test_list_pending_publications_creator(self):
+        self._do_test_list_pending_publications(self.auth_user_two, 1)
+
+    def test_list_pending_publications_user(self):
+        self._do_test_list_pending_publications(self.auth_user_three, 0)
 
     def test_create_publication_forbidden(self):
         data = {

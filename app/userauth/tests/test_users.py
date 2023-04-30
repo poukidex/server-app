@@ -19,7 +19,7 @@ class TestUsers(BaseTest):
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
-        self.assertEqual(len(content), 2)
+        self.assertEqual(len(content), 3)
         for item in content:
             self.assertDictEqualsSchema(
                 item,

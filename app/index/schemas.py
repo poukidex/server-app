@@ -57,6 +57,11 @@ class PropositionSchema(IdentifiableOutput, StorableOutput):
 # ======================================================================================
 # Publication
 # ======================================================================================
+class PendingPublicationSchema(IdentifiableOutput, RepresentableOutput, StorableOutput):
+    created_at: datetime
+    creator: UserSchema
+
+
 class PublicationInput(RepresentableOutput, StorableInput):
     pass
 
