@@ -3,7 +3,7 @@ from typing import Optional
 from ninja import Schema
 from pydantic import validator
 
-from core.schemas import (
+from core.schemas.common import (
     IdentifiableOutput,
     OptionalStorableInput,
     OptionalStorableOutput,

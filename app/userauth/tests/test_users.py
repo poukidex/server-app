@@ -2,7 +2,7 @@ from http import HTTPStatus
 
 from django.urls import reverse
 
-from config.tests.base_test import BaseTest
+from core.tests.base import BaseTest
 from userauth.models import User
 from userauth.schemas import UserSchema
 

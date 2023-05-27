@@ -11,8 +11,8 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from ninja import Router
 
 from config.authentication import IDTokenBearer, JWTCoder
-from config.exceptions import IncoherentInput
-from core.schemas import ErrorOutput
+from core.exceptions import IncoherentInput
+from core.schemas.common import ErrorOutput
 from userauth.models import Token, User
 from userauth.schemas import (
     AccessTokenOutput,

@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser
 from django.urls import reverse
 
 from config.authentication import JWTCoder
-from config.tests.base_test import BaseTest
+from core.tests.base import BaseTest
 from userauth.models import Token, User
 
 

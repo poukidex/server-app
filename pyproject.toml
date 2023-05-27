@@ -9,7 +9,7 @@ all = true
 name = "poukidex"
 version = "0.1.0"
 description = "Backend of Poukidex app"
-authors = ["Thomas Darget <thomasdarget@hotmail.fr>", "Hicham Bakri"]
+authors = ["Thomas Darget <thomasdarget@hotmail.fr>", "Hicham Bakri <hicham.bakri76@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
