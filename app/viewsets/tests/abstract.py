@@ -31,7 +31,7 @@ class AbstractAPIViewTest:
     client: Client
     get_instance: Callable[[TestCase], Model]
     get_credentials: Callable[[TestCase], Credentials]
-    method_cls: Type[AbstractAPIView]
+    api_view_cls: Type[AbstractAPIView]
 
     def __init__(self, instance_getter: Callable, credentials_getter: Callable) -> None:
         self.get_instance = instance_getter
@@ -44,10 +44,10 @@ class AbstractAPIViewTest:
             if name.startswith("test")
         ]
 
-    def get_method(self):
+    def get_api_view(self):
         for attr_name in dir(self.api):
             attr_value = getattr(self.api, attr_name)
-            if attr_value is not None and isinstance(attr_value, self.method_cls):
+            if isinstance(attr_value, self.api_view_cls):
                 return attr_value
 
     def assert_content_equals_schema(
@@ -131,7 +131,7 @@ class APIViewSetTestMeta(type):
         test_case = new_cls()
         for attr_name in dir(new_cls):
             attr_value = getattr(new_cls, attr_name)
-            if attr_value is not None and isinstance(attr_value, AbstractAPIViewTest):
+            if isinstance(attr_value, AbstractAPIViewTest):
                 attr_value.api = new_cls.api
                 attr_value.test_case = test_case
                 attr_value.client = new_cls.client_class()

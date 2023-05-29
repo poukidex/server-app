@@ -13,7 +13,7 @@ from viewsets.tests.abstract import AbstractAPIViewTest, Credentials, Payloads
 
 
 class UpdateAPIViewTest(AbstractAPIViewTest):
-    method_cls = UpdateAPIView
+    api_view_cls = UpdateAPIView
     payloads: Payloads
 
     def __init__(self, payloads: Payloads, *args, **kwargs) -> None:
@@ -39,7 +39,7 @@ class UpdateAPIViewTest(AbstractAPIViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
 
-        method: UpdateAPIView = self.get_method()
+        method: UpdateAPIView = self.get_api_view()
         self.assert_content_equals_schema(
             content, model=self.api.model, output_schema=method.output_schema
         )

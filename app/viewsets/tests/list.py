@@ -12,7 +12,7 @@ from viewsets.tests.abstract import AbstractAPIViewTest, Credentials
 
 
 class ListAPIViewTest(AbstractAPIViewTest):
-    method_cls = ListAPIView
+    api_view_cls = ListAPIView
 
     def list_model(self, id: UUID, credentials: Optional[dict]) -> Response:
         if credentials is None:
@@ -29,7 +29,7 @@ class ListAPIViewTest(AbstractAPIViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
 
-        method: ListAPIView = self.get_method()
+        method: ListAPIView = self.get_api_view()
         if method.get_queryset is not None:
             queryset = method.get_queryset(None)
         else:

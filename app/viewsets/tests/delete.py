@@ -13,7 +13,7 @@ from viewsets.tests.abstract import AbstractAPIViewTest, Credentials
 
 
 class DeleteAPIViewTest(AbstractAPIViewTest):
-    method_cls = DeleteAPIView
+    api_view_cls = DeleteAPIView
 
     def delete_model(self, id: UUID, credentials: Optional[dict]) -> Response:
         if credentials is None:

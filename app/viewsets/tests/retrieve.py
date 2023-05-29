@@ -13,7 +13,7 @@ from viewsets.tests.abstract import AbstractAPIViewTest, Credentials
 
 
 class RetrieveAPIViewTest(AbstractAPIViewTest):
-    method_cls = RetrieveAPIView
+    api_view_cls = RetrieveAPIView
 
     def retrieve_model(self, id: UUID, credentials: Optional[dict]) -> Response:
         if credentials is None:
@@ -31,7 +31,7 @@ class RetrieveAPIViewTest(AbstractAPIViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
 
-        method: RetrieveAPIView = self.get_method()
+        method: RetrieveAPIView = self.get_api_view()
         self.assert_content_equals_schema(
             content, model=self.api.model, output_schema=method.output_schema
         )
