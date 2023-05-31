@@ -8,12 +8,12 @@ from django.urls import reverse
 from requests import Response
 
 from viewsets import utils
-from viewsets.methods.retrieve import RetrieveAPIView
-from viewsets.tests.abstract import AbstractAPIViewTest, Credentials
+from viewsets.methods.retrieve import RetrieveModelView
+from viewsets.tests.abstract import AbstractModelViewTest, Credentials
 
 
-class RetrieveAPIViewTest(AbstractAPIViewTest):
-    api_view_cls = RetrieveAPIView
+class RetrieveModelViewTest(AbstractModelViewTest):
+    model_view = RetrieveModelView
 
     def retrieve_model(self, id: UUID, credentials: Optional[dict]) -> Response:
         if credentials is None:
@@ -31,7 +31,7 @@ class RetrieveAPIViewTest(AbstractAPIViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
 
-        method: RetrieveAPIView = self.get_api_view()
+        method: RetrieveModelView = self.get_api_view()
         self.assert_content_equals_schema(
             content, model=self.api.model, output_schema=method.output_schema
         )

@@ -1,15 +1,15 @@
-from collection.api.collections import CollectionAPI
+from collection.api.collections import CollectionViewSet
 from core.tests.base import BaseTest
-from viewsets.tests.abstract import APIViewSetTest, Credentials, Payloads
-from viewsets.tests.create import CreateAPIViewTest
-from viewsets.tests.delete import DeleteAPIViewTest
-from viewsets.tests.list import ListAPIViewTest
-from viewsets.tests.retrieve import RetrieveAPIViewTest
-from viewsets.tests.update import UpdateAPIViewTest
+from viewsets.tests.abstract import Credentials, ModelViewSetTest, Payloads
+from viewsets.tests.create import CreateModelViewTest
+from viewsets.tests.delete import DeleteModelViewTest
+from viewsets.tests.list import ListModelViewTest
+from viewsets.tests.retrieve import RetrieveModelViewTest
+from viewsets.tests.update import UpdateModelViewTest
 
 
-class CollectionAPITestResource(APIViewSetTest, BaseTest):
-    api = CollectionAPI
+class CollectionViewSetTest(ModelViewSetTest, BaseTest):
+    api = CollectionViewSet
 
     def get_instance(self):
         return self.first_collection
@@ -20,29 +20,39 @@ class CollectionAPITestResource(APIViewSetTest, BaseTest):
         conflict={"name": "second-collection", "description": "description"},
     )
 
-    list = ListAPIViewTest(
+    list = ListModelViewTest(
         instance_getter=get_instance,
         credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
     )
-    create = CreateAPIViewTest(
+    create = CreateModelViewTest(
         payloads=payloads,
         instance_getter=get_instance,
         credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
     )
-    retrieve = RetrieveAPIViewTest(
+    retrieve = RetrieveModelViewTest(
         instance_getter=get_instance,
         credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
     )
-    update = UpdateAPIViewTest(
+    update = UpdateModelViewTest(
         payloads=payloads,
         instance_getter=get_instance,
         credentials_getter=lambda self: Credentials(
             ok=self.auth_user_one, forbidden=self.auth_user_two
         ),
     )
-    delete = DeleteAPIViewTest(
+    delete = DeleteModelViewTest(
         instance_getter=get_instance,
         credentials_getter=lambda self: Credentials(
             ok=self.auth_user_one, forbidden=self.auth_user_two
         ),
+    )
+
+    list_items = ListModelViewTest(
+        instance_getter=get_instance,
+        credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
+    )
+    create_item = CreateModelViewTest(
+        payloads=payloads,
+        instance_getter=get_instance,
+        credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
     )

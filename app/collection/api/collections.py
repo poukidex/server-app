@@ -11,12 +11,12 @@ from core.schemas.collections import (
     ItemInput,
     ItemOutput,
 )
-from viewsets.methods.abstract import APIViewSet
-from viewsets.methods.create import CreateAPIView
-from viewsets.methods.delete import DeleteAPIView
-from viewsets.methods.list import ListAPIView
-from viewsets.methods.retrieve import RetrieveAPIView
-from viewsets.methods.update import UpdateAPIView
+from viewsets.methods.abstract import ModelViewSet
+from viewsets.methods.create import CreateModelView
+from viewsets.methods.delete import DeleteModelView
+from viewsets.methods.list import ListModelView
+from viewsets.methods.retrieve import RetrieveModelView
+from viewsets.methods.update import UpdateModelView
 
 router = Router()
 
@@ -32,37 +32,37 @@ def user_is_creator(func):
     return wrapper
 
 
-class CollectionAPI(APIViewSet):
+class CollectionViewSet(ModelViewSet):
     model = Collection
     input_schema = CollectionInput
     output_schema = CollectionOutput
 
-    list = ListAPIView(
+    list = ListModelView(
         output_schema=output_schema,
         queryset_getter=lambda request: Collection.objects.annotate(
             nb_items=Count("items")
         ),
     )
-    create = CreateAPIView(
+    create = CreateModelView(
         input_schema=input_schema,
         output_schema=output_schema,
         pre_save=lambda instance, request: setattr(instance, "creator", request.user),
     )
-    retrieve = RetrieveAPIView(output_schema=output_schema)
-    update = UpdateAPIView(
+    retrieve = RetrieveModelView(output_schema=output_schema)
+    update = UpdateModelView(
         input_schema=input_schema,
         output_schema=output_schema,
         decorators=[user_is_creator],
     )
-    delete = DeleteAPIView(decorators=[user_is_creator])
+    delete = DeleteModelView(decorators=[user_is_creator])
 
-    list_items = ListAPIView(
+    list_items = ListModelView(
         detail=True,
         model=Item,
         output_schema=ItemOutput,
         queryset_getter=lambda request, id: Item.objects.filter(collection_id=id),
     )
-    create_item = CreateAPIView(
+    create_item = CreateModelView(
         detail=True,
         model=Item,
         input_schema=ItemInput,
@@ -72,4 +72,4 @@ class CollectionAPI(APIViewSet):
     )
 
 
-CollectionAPI.register_routes(router)
+CollectionViewSet.register_routes(router)

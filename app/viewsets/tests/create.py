@@ -7,12 +7,12 @@ from django.urls import reverse
 from requests import Response
 
 from viewsets import utils
-from viewsets.methods.create import CreateAPIView
-from viewsets.tests.abstract import AbstractAPIViewTest, Credentials, Payloads
+from viewsets.methods.create import CreateModelView
+from viewsets.tests.abstract import AbstractModelViewTest, Credentials, Payloads
 
 
-class CreateAPIViewTest(AbstractAPIViewTest):
-    api_view_cls = CreateAPIView
+class CreateModelViewTest(AbstractModelViewTest):
+    model_view = CreateModelView
     payloads: Payloads
 
     def __init__(self, payloads: Payloads, *args, **kwargs) -> None:
@@ -39,7 +39,7 @@ class CreateAPIViewTest(AbstractAPIViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.CREATED)
         content = response.json()
 
-        method: CreateAPIView = self.get_api_view()
+        method: CreateModelView = self.get_api_view()
         self.assert_content_equals_schema(
             content, model=self.api.model, output_schema=method.output_schema
         )

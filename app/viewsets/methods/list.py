@@ -8,11 +8,11 @@ from ninja import FilterSchema, Query, Router, Schema
 from ninja.pagination import LimitOffsetPagination, paginate
 
 from viewsets import utils
-from viewsets.methods.abstract import AbstractAPIView
+from viewsets.methods.abstract import AbstractModelView
 from viewsets.utils import merge_decorators
 
 
-class ListAPIView(AbstractAPIView):
+class ListModelView(AbstractModelView):
     def __init__(
         self,
         output_schema: Type[Schema],

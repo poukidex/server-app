@@ -11,7 +11,7 @@ from ninja import Schema
 from orjson import orjson
 from requests import Response
 
-from viewsets.methods.abstract import AbstractAPIView, APIViewSet
+from viewsets.methods.abstract import AbstractModelView, ModelViewSet
 
 
 class Credentials(NamedTuple):
@@ -25,13 +25,13 @@ class Payloads(NamedTuple):
     conflict: Optional[dict] = None
 
 
-class AbstractAPIViewTest:
-    api: APIViewSet
+class AbstractModelViewTest:
+    api: ModelViewSet
     test_case: TestCase
     client: Client
     get_instance: Callable[[TestCase], Model]
     get_credentials: Callable[[TestCase], Credentials]
-    api_view_cls: Type[AbstractAPIView]
+    model_view: Type[AbstractModelView]
 
     def __init__(self, instance_getter: Callable, credentials_getter: Callable) -> None:
         self.get_instance = instance_getter
@@ -47,7 +47,7 @@ class AbstractAPIViewTest:
     def get_api_view(self):
         for attr_name in dir(self.api):
             attr_value = getattr(self.api, attr_name)
-            if isinstance(attr_value, self.api_view_cls):
+            if isinstance(attr_value, self.model_view):
                 return attr_value
 
     def assert_content_equals_schema(
@@ -122,8 +122,8 @@ class AbstractAPIViewTest:
         self.test_case.assertIn("detail", content)
 
 
-class APIViewSetTestMeta(type):
-    api: APIViewSet
+class ModelViewSetTestMeta(type):
+    api: ModelViewSet
     client_class: callable
 
     def __new__(mcs, name, bases, dct):
@@ -131,7 +131,7 @@ class APIViewSetTestMeta(type):
         test_case = new_cls()
         for attr_name in dir(new_cls):
             attr_value = getattr(new_cls, attr_name)
-            if isinstance(attr_value, AbstractAPIViewTest):
+            if isinstance(attr_value, AbstractModelViewTest):
                 attr_value.api = new_cls.api
                 attr_value.test_case = test_case
                 attr_value.client = new_cls.client_class()
@@ -143,5 +143,5 @@ class APIViewSetTestMeta(type):
         return new_cls
 
 
-class APIViewSetTest(metaclass=APIViewSetTestMeta):
-    api: APIViewSet
+class ModelViewSetTest(metaclass=ModelViewSetTestMeta):
+    api: ModelViewSet

@@ -7,7 +7,7 @@ from django.db.models import Model
 from ninja import Router
 
 
-class AbstractAPIView(ABC):
+class AbstractModelView(ABC):
     decorators: List[Callable]
 
     def __init__(self, decorators: List[Callable] = None) -> None:
@@ -20,7 +20,7 @@ class AbstractAPIView(ABC):
         pass
 
 
-class APIViewSet:
+class ModelViewSet:
     router: Router
     model: Type[Model]
 
@@ -28,5 +28,5 @@ class APIViewSet:
     def register_routes(cls, router: Router) -> None:
         for attr_name in dir(cls):
             attr_value = getattr(cls, attr_name)
-            if isinstance(attr_value, AbstractAPIView):
+            if isinstance(attr_value, AbstractModelView):
                 attr_value.register_route(router, cls.model)

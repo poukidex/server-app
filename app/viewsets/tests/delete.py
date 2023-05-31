@@ -8,12 +8,12 @@ from django.urls import reverse
 from requests import Response
 
 from viewsets import utils
-from viewsets.methods.delete import DeleteAPIView
-from viewsets.tests.abstract import AbstractAPIViewTest, Credentials
+from viewsets.methods.delete import DeleteModelView
+from viewsets.tests.abstract import AbstractModelViewTest, Credentials
 
 
-class DeleteAPIViewTest(AbstractAPIViewTest):
-    api_view_cls = DeleteAPIView
+class DeleteModelViewTest(AbstractModelViewTest):
+    model_view = DeleteModelView
 
     def delete_model(self, id: UUID, credentials: Optional[dict]) -> Response:
         if credentials is None:

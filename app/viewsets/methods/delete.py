@@ -7,11 +7,11 @@ from django.http import HttpRequest
 from ninja import Router
 
 from viewsets import utils
-from viewsets.methods.abstract import AbstractAPIView, APIViewSet
+from viewsets.methods.abstract import AbstractModelView, ModelViewSet
 from viewsets.utils import merge_decorators
 
 
-class DeleteAPIView(AbstractAPIView):
+class DeleteModelView(AbstractModelView):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
@@ -34,6 +34,6 @@ class DeleteAPIView(AbstractAPIView):
             return HTTPStatus.NO_CONTENT, None
 
     def sub_register_route(
-        self, router: Router, model: Type[Model], parent: APIViewSet
+        self, router: Router, model: Type[Model], parent: ModelViewSet
     ) -> None:
         pass

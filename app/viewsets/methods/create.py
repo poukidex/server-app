@@ -7,11 +7,11 @@ from django.http import HttpRequest
 from ninja import Router, Schema
 
 from viewsets import utils
-from viewsets.methods.abstract import AbstractAPIView
+from viewsets.methods.abstract import AbstractModelView
 from viewsets.utils import merge_decorators
 
 
-class CreateAPIView(AbstractAPIView):
+class CreateModelView(AbstractModelView):
     def __init__(
         self,
         input_schema: Type[Schema],

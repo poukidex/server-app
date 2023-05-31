@@ -7,11 +7,11 @@ from django.http import HttpRequest
 from ninja import Router, Schema
 
 from viewsets import utils
-from viewsets.methods.abstract import AbstractAPIView, APIViewSet
+from viewsets.methods.abstract import AbstractModelView, ModelViewSet
 from viewsets.utils import merge_decorators
 
 
-class RetrieveAPIView(AbstractAPIView):
+class RetrieveModelView(AbstractModelView):
     output_schema: Type[Schema]
     get_queryset: Optional[Callable]
 
@@ -50,6 +50,6 @@ class RetrieveAPIView(AbstractAPIView):
             return HTTPStatus.OK, instance
 
     def sub_register_route(
-        self, router: Router, model: Type[Model], parent: APIViewSet
+        self, router: Router, model: Type[Model], parent: ModelViewSet
     ) -> None:
         pass
