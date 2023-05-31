@@ -10,7 +10,7 @@ from ninja.pagination import paginate
 
 from config.external_client import s3_client
 from core.models.collections import Snap
-from core.schemas.collections import SnapSchema
+from core.schemas.collections import SnapOutput
 from core.schemas.common import ImageUploadInput, ImageUploadSchema
 
 router = Router()
@@ -19,7 +19,7 @@ router = Router()
 @router.get(
     path="/feed",
     url_name="feed",
-    response={HTTPStatus.OK: list[SnapSchema]},
+    response={HTTPStatus.OK: list[SnapOutput]},
     operation_id="get_feed",
 )
 @paginate(OverpoweredPagination)

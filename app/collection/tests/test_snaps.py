@@ -3,7 +3,7 @@ from http import HTTPStatus
 from django.urls import reverse
 
 from core.models.collections import Item, Like, Snap
-from core.schemas.collections import SnapSchema
+from core.schemas.collections import SnapOutput
 from core.tests.base import BaseTest
 
 
@@ -21,7 +21,7 @@ class TestSnap(BaseTest):
         content = response.json()
         self.assertDictEqualsSchema(
             content,
-            SnapSchema.from_orm(self.second_collection_item_2_snap_2),
+            SnapOutput.from_orm(self.second_collection_item_2_snap_2),
         )
 
     def _do_test_update_snap(self, auth_user, expected_status):
@@ -40,7 +40,7 @@ class TestSnap(BaseTest):
 
             snap_updated = Snap.objects.get(id=self.second_collection_item_2_snap_1.id)
 
-            self.assertDictEqualsSchema(content, SnapSchema.from_orm(snap_updated))
+            self.assertDictEqualsSchema(content, SnapOutput.from_orm(snap_updated))
 
     def test_update_snap(self):
         self._do_test_update_snap(self.auth_user_one, HTTPStatus.OK)

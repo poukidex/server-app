@@ -4,7 +4,7 @@ from http import HTTPStatus
 from django.urls import reverse
 
 from core.models.collections import Item, Snap
-from core.schemas.collections import SnapSchema
+from core.schemas.collections import SnapOutput
 from core.tests.base import BaseTest
 
 
@@ -68,7 +68,7 @@ class TestHome(BaseTest):
             ids.append(item["id"])
             self.assertDictEqualsSchema(
                 item,
-                SnapSchema.from_orm(Snap.objects.get(id=item["id"])),
+                SnapOutput.from_orm(Snap.objects.get(id=item["id"])),
             )
 
         if expected_number >= 1:

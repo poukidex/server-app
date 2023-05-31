@@ -12,7 +12,7 @@ from core.schemas.collections import (
     LikeInput,
     LikeQuery,
     LikeSchema,
-    SnapSchema,
+    SnapOutput,
     SnapUpdate,
 )
 from core.utils import update_object_from_schema
@@ -23,7 +23,7 @@ router = Router()
 @router.get(
     path="/{id}",
     url_name="snap",
-    response={HTTPStatus.OK: SnapSchema},
+    response={HTTPStatus.OK: SnapOutput},
     operation_id="get_capture",
 )
 def retrieve_snap(request, id: UUID):
@@ -36,7 +36,7 @@ def retrieve_snap(request, id: UUID):
 @router.put(
     path="/{id}",
     url_name="snap",
-    response={HTTPStatus.OK: SnapSchema},
+    response={HTTPStatus.OK: SnapOutput},
     operation_id="update_capture",
 )
 def update_snap(request, id: UUID, payload: SnapUpdate):

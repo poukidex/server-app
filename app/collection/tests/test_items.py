@@ -5,7 +5,7 @@ from django.db.models import Count
 from django.urls import reverse
 
 from core.models.collections import Item, Snap
-from core.schemas.collections import ItemOutput, SnapSchema
+from core.schemas.collections import ItemOutput, SnapOutput
 from core.tests.base import BaseTest
 
 
@@ -103,7 +103,7 @@ class TestItems(BaseTest):
         content = response.json()
         self.assertDictEqualsSchema(
             content,
-            SnapSchema.from_orm(Snap.objects.get(id=content["id"])),
+            SnapOutput.from_orm(Snap.objects.get(id=content["id"])),
         )
 
     def test_create_snap_conflict(self):
@@ -131,7 +131,7 @@ class TestItems(BaseTest):
         for item in content:
             self.assertDictEqualsSchema(
                 item,
-                SnapSchema.from_orm(Snap.objects.get(id=item["id"])),
+                SnapOutput.from_orm(Snap.objects.get(id=item["id"])),
             )
 
     def test_retrieve_my_snap(self):
@@ -143,5 +143,5 @@ class TestItems(BaseTest):
         content = response.json()
         self.assertDictEqualsSchema(
             content,
-            SnapSchema.from_orm(self.second_collection_item_2_snap_1),
+            SnapOutput.from_orm(self.second_collection_item_2_snap_1),
         )

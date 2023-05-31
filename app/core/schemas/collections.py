@@ -42,7 +42,7 @@ class SnapUpdate(StorableInput):
     comment: str
 
 
-class SnapSchema(IdentifiableOutput, StorableOutput):
+class SnapOutput(IdentifiableOutput, StorableOutput):
     created_at: datetime
     user: UserSchema
     comment: str
