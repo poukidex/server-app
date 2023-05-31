@@ -26,7 +26,7 @@ class Payloads(NamedTuple):
 
 
 class AbstractModelViewTest:
-    api: ModelViewSet
+    model_view_set: ModelViewSet
     test_case: TestCase
     client: Client
     get_instance: Callable[[TestCase], Model]
@@ -44,9 +44,9 @@ class AbstractModelViewTest:
             if name.startswith("test")
         ]
 
-    def get_api_view(self):
-        for attr_name in dir(self.api):
-            attr_value = getattr(self.api, attr_name)
+    def get_model_view(self):
+        for attr_name in dir(self.model_view_set):
+            attr_value = getattr(self.model_view_set, attr_name)
             if isinstance(attr_value, self.model_view):
                 return attr_value
 
@@ -123,7 +123,7 @@ class AbstractModelViewTest:
 
 
 class ModelViewSetTestMeta(type):
-    api: ModelViewSet
+    model_view_set: ModelViewSet
     client_class: callable
 
     def __new__(mcs, name, bases, dct):
@@ -132,16 +132,16 @@ class ModelViewSetTestMeta(type):
         for attr_name in dir(new_cls):
             attr_value = getattr(new_cls, attr_name)
             if isinstance(attr_value, AbstractModelViewTest):
-                attr_value.api = new_cls.api
+                attr_value.model_view_set = new_cls.model_view_set
                 attr_value.test_case = test_case
                 attr_value.client = new_cls.client_class()
                 for test_name, test_func in attr_value.get_tests():
                     new_test_name = test_name.replace(
-                        "model", new_cls.api.model.__name__.lower()
+                        "model", new_cls.model_view_set.model.__name__.lower()
                     )
                     setattr(new_cls, new_test_name, test_func)
         return new_cls
 
 
 class ModelViewSetTest(metaclass=ModelViewSetTestMeta):
-    api: ModelViewSet
+    model_view_set: ModelViewSet

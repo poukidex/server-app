@@ -20,7 +20,7 @@ class DeleteModelViewTest(AbstractModelViewTest):
             credentials = {}
 
         kwargs = {"id": id}
-        url_name = utils.to_snake_case(self.api.model.__name__)
+        url_name = utils.to_snake_case(self.model_view_set.model.__name__)
         return self.client.delete(
             reverse(f"api:{url_name}", kwargs=kwargs),
             content_type="application/json",

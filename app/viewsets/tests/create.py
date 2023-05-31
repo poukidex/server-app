@@ -27,7 +27,7 @@ class CreateModelViewTest(AbstractModelViewTest):
 
         kwargs = {"id": id}
         print(kwargs)
-        url_name = utils.to_snake_case(self.api.model.__name__)
+        url_name = utils.to_snake_case(self.model_view_set.model.__name__)
         return self.client.post(
             reverse(f"api:{url_name}s"),
             data=data,
@@ -39,9 +39,9 @@ class CreateModelViewTest(AbstractModelViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.CREATED)
         content = response.json()
 
-        method: CreateModelView = self.get_api_view()
+        method: CreateModelView = self.get_model_view()
         self.assert_content_equals_schema(
-            content, model=self.api.model, output_schema=method.output_schema
+            content, model=self.model_view_set.model, output_schema=method.output_schema
         )
 
     def test_create_model_ok(self):

@@ -20,7 +20,7 @@ class ListModelViewTest(AbstractModelViewTest):
 
         kwargs = {"id": id}
         print(kwargs)
-        url_name = utils.to_snake_case(self.api.model.__name__)
+        url_name = utils.to_snake_case(self.model_view_set.model.__name__)
         return self.client.get(
             reverse(f"api:{url_name}s"), content_type="application/json", **credentials
         )
@@ -29,11 +29,11 @@ class ListModelViewTest(AbstractModelViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
 
-        method: ListModelView = self.get_api_view()
+        method: ListModelView = self.get_model_view()
         if method.get_queryset is not None:
             queryset = method.get_queryset(None)
         else:
-            queryset = self.api.model.objects.get_queryset()
+            queryset = self.model_view_set.model.objects.get_queryset()
         self.assert_content_equals_schema_list(
             content, queryset=queryset, output_schema=method.output_schema
         )

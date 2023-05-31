@@ -20,7 +20,7 @@ class RetrieveModelViewTest(AbstractModelViewTest):
             credentials = {}
 
         kwargs = {"id": id}
-        url_name = utils.to_snake_case(self.api.model.__name__)
+        url_name = utils.to_snake_case(self.model_view_set.model.__name__)
         return self.client.get(
             reverse(f"api:{url_name}", kwargs=kwargs),
             content_type="application/json",
@@ -31,9 +31,9 @@ class RetrieveModelViewTest(AbstractModelViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
 
-        method: RetrieveModelView = self.get_api_view()
+        method: RetrieveModelView = self.get_model_view()
         self.assert_content_equals_schema(
-            content, model=self.api.model, output_schema=method.output_schema
+            content, model=self.model_view_set.model, output_schema=method.output_schema
         )
 
     def test_retrieve_model_ok(self):

@@ -9,7 +9,7 @@ from viewsets.tests.update import UpdateModelViewTest
 
 
 class CollectionViewSetTest(ModelViewSetTest, BaseTest):
-    api = CollectionViewSet
+    model_view_set = CollectionViewSet
 
     def get_instance(self):
         return self.first_collection
