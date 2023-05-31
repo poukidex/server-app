@@ -7,7 +7,7 @@ from django.http import HttpRequest
 from ninja import Router, Schema
 
 from viewsets import utils
-from viewsets.methods.abstract import AbstractModelView, ModelViewSet
+from viewsets.methods.abstract import AbstractModelView
 from viewsets.utils import merge_decorators
 
 
@@ -48,8 +48,3 @@ class RetrieveModelView(AbstractModelView):
                 queryset = model.objects.get_queryset()
             instance = queryset.get(pk=id)
             return HTTPStatus.OK, instance
-
-    def sub_register_route(
-        self, router: Router, model: Type[Model], parent: ModelViewSet
-    ) -> None:
-        pass

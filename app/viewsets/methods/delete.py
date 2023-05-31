@@ -7,7 +7,7 @@ from django.http import HttpRequest
 from ninja import Router
 
 from viewsets import utils
-from viewsets.methods.abstract import AbstractModelView, ModelViewSet
+from viewsets.methods.abstract import AbstractModelView
 from viewsets.utils import merge_decorators
 
 
@@ -32,8 +32,3 @@ class DeleteModelView(AbstractModelView):
             instance = model.objects.get(pk=id)
             instance.delete()
             return HTTPStatus.NO_CONTENT, None
-
-    def sub_register_route(
-        self, router: Router, model: Type[Model], parent: ModelViewSet
-    ) -> None:
-        pass
