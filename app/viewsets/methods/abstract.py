@@ -21,7 +21,6 @@ class AbstractModelView(ABC):
 
 
 class ModelViewSet:
-    router: Router
     model: Type[Model]
 
     @classmethod
