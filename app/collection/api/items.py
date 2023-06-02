@@ -4,10 +4,11 @@ from uuid import UUID
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
+from django.http import HttpRequest
 from ninja import Router
 
 from core.models.collections import Item, Snap
-from core.schemas.collections import ItemInput, ItemOutput, SnapOutput
+from core.schemas.collections import ItemInput, ItemOutput, SnapInput, SnapOutput
 from viewsets.methods.abstract import ModelViewSet
 from viewsets.methods.create import CreateModelView
 from viewsets.methods.delete import DeleteModelView
@@ -42,25 +43,27 @@ class ItemViewSet(ModelViewSet):
     )
     delete = DeleteModelView(decorators=[user_is_collection_creator])
 
-    @staticmethod
-    def get_snap_queryset(request, id):
-        return Snap.objects.annotate(
-            nb_likes=Count("likes", filter=Q(likes__liked=True)),
-            nb_dislikes=Count("likes", filter=Q(likes__liked=False)),
-        ).filter(item_id=id)
-
     list_snaps = ListModelView(
         detail=True,
         model=Snap,
         output_schema=SnapOutput,
-        queryset_getter=get_snap_queryset,
+        queryset_getter=lambda request, id: Snap.objects.annotate(
+            nb_likes=Count("likes", filter=Q(likes__liked=True)),
+            nb_dislikes=Count("likes", filter=Q(likes__liked=False)),
+        ).filter(item_id=id),
     )
+
+    @staticmethod
+    def pre_save_snap(instance: Snap, request: HttpRequest, id: UUID):
+        instance.item_id = id
+        instance.user = request.user
+
     create_snap = CreateModelView(
         detail=True,
         model=Snap,
-        input_schema=ItemInput,
+        input_schema=SnapInput,
         output_schema=SnapOutput,
-        pre_save=lambda instance, request, id: setattr(instance, "item_id", id),
+        pre_save=pre_save_snap,
     )
 
 

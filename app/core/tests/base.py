@@ -26,8 +26,8 @@ class BaseTest(TestCase):
 
     previous_level: int
 
-    second_collection: Collection
-    first_collection: Collection
+    collection_1: Collection
+    collection_2: Collection
 
     second_collection_item_1: Item
     second_collection_item_2: Item
@@ -74,41 +74,41 @@ class BaseTest(TestCase):
         cls.auth_user_two = cls._generate_auth_user(cls.token_two)
         cls.auth_user_three = cls._generate_auth_user(cls.token_three)
 
-        cls.first_collection = Collection.objects.create(
+        cls.collection_1 = Collection.objects.create(
             creator=cls.user_one,
-            name="first-collection",
-            description="some",
+            name="collection-1",
+            description="description-collection-1",
         )
+        for name in ["item-1", "item-2", "item-3"]:
+            Item.objects.create(
+                collection=cls.collection_1,
+                name=name,
+                description=f"description-{name}",
+                object_name=f"object-name-{name}",
+            )
 
-        cls.first_collection_item_1 = Item.objects.create(
-            collection=cls.first_collection,
-            name="first-item",
-            description="description",
-            object_name="object_name",
-        )
-
-        cls.second_collection = Collection.objects.create(
+        cls.collection_2 = Collection.objects.create(
             creator=cls.user_one,
-            name="second-collection",
-            description="some",
+            name="collection-2",
+            description="description-collection-2",
         )
 
         cls.second_collection_item_1 = Item.objects.create(
-            collection=cls.second_collection,
+            collection=cls.collection_2,
             name="first-item",
             description="description",
             object_name="object_name",
         )
 
         cls.second_collection_item_2 = Item.objects.create(
-            collection=cls.second_collection,
+            collection=cls.collection_2,
             name="second-item",
             description="description",
             object_name="object_name",
         )
 
         cls.second_collection_pending_item = PendingItem.objects.create(
-            collection=cls.second_collection,
+            collection=cls.collection_2,
             name="some-name3",
             description="description",
             object_name="object_name",

@@ -11,6 +11,7 @@ from ninja import NinjaAPI
 from ninja.errors import ValidationError as NinjaValidationError
 
 from collection.api.collections import router as collection_router
+from collection.api.items import router as item_router
 from config.authentication import AccessTokenBearer
 from config.renderer import ORJSONRenderer
 from core.exceptions import PoukidexException
@@ -25,7 +26,7 @@ api = NinjaAPI(
 
 # api.add_router("home", home_router, tags=["home"])
 api.add_router("collections", collection_router, tags=["collection"])
-# api.add_router("items", ItemsAPI().router, tags=["item"])
+api.add_router("items", item_router, tags=["item"])
 # api.add_router("pending-items", pending_items_router, tags=["item"])
 # api.add_router("snaps", snaps_router, tags=["snap"])
 api.add_router("auth", auth_router, tags=["auth"])

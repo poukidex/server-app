@@ -13,7 +13,7 @@ class TestHome(BaseTest):
     def setUpClass(cls) -> None:
         super().setUpClass()
         cls.item_another = Item.objects.create(
-            collection=cls.second_collection,
+            collection=cls.collection_2,
             name="another-item",
             description="description",
             object_name="object_name",
@@ -95,7 +95,7 @@ class TestHome(BaseTest):
 
     def test_generate_presigned_url(self):
         data = {
-            "id": self.first_collection.id,
+            "id": self.collection_1.id,
             "filename": "image.png",
             "content_type": "application/png",
         }
