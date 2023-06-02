@@ -102,7 +102,7 @@ def api_handler_validation_error(request, exc: ValidationError):
     status = HTTPStatus.BAD_REQUEST
     for field, errors in exc.error_dict.items():
         for error in errors:
-            if error.code == "unique":
+            if error.code in ["unique", "unique_together"]:
                 status = HTTPStatus.CONFLICT
     return api.create_response(
         request,

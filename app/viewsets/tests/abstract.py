@@ -12,6 +12,8 @@ from orjson import orjson
 from requests import Response
 
 from viewsets.methods.abstract import AbstractModelView, ModelViewSet
+from viewsets.methods.create import CreateModelView
+from viewsets.methods.list import ListModelView
 
 
 class Credentials(NamedTuple):
@@ -32,6 +34,7 @@ class AbstractModelViewTest:
     get_instance: Callable[[TestCase], Model]
     get_credentials: Callable[[TestCase], Credentials]
     model_view: Type[AbstractModelView]
+    name: str
 
     def __init__(self, instance_getter: Callable, credentials_getter: Callable) -> None:
         self.get_instance = instance_getter
@@ -47,7 +50,7 @@ class AbstractModelViewTest:
     def get_model_view(self):
         for attr_name in dir(self.model_view_set):
             attr_value = getattr(self.model_view_set, attr_name)
-            if isinstance(attr_value, self.model_view):
+            if isinstance(attr_value, self.model_view) and attr_name == self.name:
                 return attr_value
 
     def assert_content_equals_schema(
@@ -135,10 +138,18 @@ class ModelViewSetTestMeta(type):
                 attr_value.model_view_set = new_cls.model_view_set
                 attr_value.test_case = test_case
                 attr_value.client = new_cls.client_class()
+                attr_value.name = attr_name
                 for test_name, test_func in attr_value.get_tests():
-                    new_test_name = test_name.replace(
-                        "model", new_cls.model_view_set.model.__name__.lower()
-                    )
+                    method = attr_value.get_model_view()
+                    model_name = new_cls.model_view_set.model.__name__.lower()
+                    substring_replace = model_name
+                    if isinstance(method, ListModelView) or isinstance(
+                        method, CreateModelView
+                    ):
+                        if method.detail:
+                            related_model_name = method.model.__name__.lower()
+                            substring_replace = f"{model_name}_{related_model_name}"
+                    new_test_name = test_name.replace("model", substring_replace)
                     setattr(new_cls, new_test_name, test_func)
         return new_cls
 

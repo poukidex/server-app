@@ -39,9 +39,11 @@ class UpdateModelViewTest(AbstractModelViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
 
-        method: UpdateModelView = self.get_model_view()
+        model_view: UpdateModelView = self.get_model_view()
         self.assert_content_equals_schema(
-            content, model=self.model_view_set.model, output_schema=method.output_schema
+            content,
+            model=self.model_view_set.model,
+            output_schema=model_view.output_schema,
         )
 
     def test_update_model_ok(self):

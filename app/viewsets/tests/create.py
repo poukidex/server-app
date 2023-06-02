@@ -25,11 +25,18 @@ class CreateModelViewTest(AbstractModelViewTest):
         if credentials is None:
             credentials = {}
 
-        kwargs = {"id": id}
-        print(kwargs)
-        url_name = utils.to_snake_case(self.model_view_set.model.__name__)
+        model_view: CreateModelView = self.get_model_view()
+        model_name = utils.to_snake_case(self.model_view_set.model.__name__)
+        if model_view.detail:
+            related_model_name = utils.to_snake_case(model_view.model.__name__)
+            url_name = f"{model_name}_{related_model_name}s"
+            kwargs = {"id": id}
+        else:
+            url_name = f"{model_name}s"
+            kwargs = {}
+
         return self.client.post(
-            reverse(f"api:{url_name}s"),
+            reverse(f"api:{url_name}", kwargs=kwargs),
             data=data,
             content_type="application/json",
             **credentials,
@@ -39,9 +46,13 @@ class CreateModelViewTest(AbstractModelViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.CREATED)
         content = response.json()
 
-        method: CreateModelView = self.get_model_view()
+        model_view: CreateModelView = self.get_model_view()
+        if model_view.detail:
+            model = model_view.model
+        else:
+            model = self.model_view_set.model
         self.assert_content_equals_schema(
-            content, model=self.model_view_set.model, output_schema=method.output_schema
+            content, model=model, output_schema=model_view.output_schema
         )
 
     def test_create_model_ok(self):

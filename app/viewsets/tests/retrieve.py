@@ -31,9 +31,11 @@ class RetrieveModelViewTest(AbstractModelViewTest):
         self.test_case.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
 
-        method: RetrieveModelView = self.get_model_view()
+        model_view: RetrieveModelView = self.get_model_view()
         self.assert_content_equals_schema(
-            content, model=self.model_view_set.model, output_schema=method.output_schema
+            content,
+            model=self.model_view_set.model,
+            output_schema=model_view.output_schema,
         )
 
     def test_retrieve_model_ok(self):

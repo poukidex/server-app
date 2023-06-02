@@ -80,6 +80,13 @@ class BaseTest(TestCase):
             description="some",
         )
 
+        cls.first_collection_item_1 = Item.objects.create(
+            collection=cls.first_collection,
+            name="first-item",
+            description="description",
+            object_name="object_name",
+        )
+
         cls.second_collection = Collection.objects.create(
             creator=cls.user_one,
             name="second-collection",
@@ -88,14 +95,14 @@ class BaseTest(TestCase):
 
         cls.second_collection_item_1 = Item.objects.create(
             collection=cls.second_collection,
-            name="some-name",
+            name="first-item",
             description="description",
             object_name="object_name",
         )
 
         cls.second_collection_item_2 = Item.objects.create(
             collection=cls.second_collection,
-            name="some-name2",
+            name="second-item",
             description="description",
             object_name="object_name",
         )

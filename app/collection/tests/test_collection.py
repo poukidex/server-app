@@ -14,7 +14,7 @@ class CollectionViewSetTest(ModelViewSetTest, BaseTest):
     def get_instance(self):
         return self.first_collection
 
-    payloads = Payloads(
+    collection_payloads = Payloads(
         ok={"name": "name", "description": "description"},
         bad_request={"name": "name"},
         conflict={"name": "second-collection", "description": "description"},
@@ -25,7 +25,7 @@ class CollectionViewSetTest(ModelViewSetTest, BaseTest):
         credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
     )
     create = CreateModelViewTest(
-        payloads=payloads,
+        payloads=collection_payloads,
         instance_getter=get_instance,
         credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
     )
@@ -34,7 +34,7 @@ class CollectionViewSetTest(ModelViewSetTest, BaseTest):
         credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
     )
     update = UpdateModelViewTest(
-        payloads=payloads,
+        payloads=collection_payloads,
         instance_getter=get_instance,
         credentials_getter=lambda self: Credentials(
             ok=self.auth_user_one, forbidden=self.auth_user_two
@@ -47,12 +47,24 @@ class CollectionViewSetTest(ModelViewSetTest, BaseTest):
         ),
     )
 
+    item_payloads = Payloads(
+        ok={"name": "name", "description": "description", "object_name": "object_name"},
+        bad_request={"name": "name"},
+        conflict={
+            "name": "first-item",
+            "description": "description",
+            "object_name": "object_name",
+        },
+    )
+
     list_items = ListModelViewTest(
         instance_getter=get_instance,
         credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
     )
     create_item = CreateModelViewTest(
-        payloads=payloads,
+        payloads=item_payloads,
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
+        credentials_getter=lambda self: Credentials(
+            ok=self.auth_user_one, forbidden=self.auth_user_two
+        ),
     )
