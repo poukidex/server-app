@@ -14,37 +14,38 @@ class CollectionViewSetTest(ModelViewSetTest, BaseTest):
     def get_instance(self):
         return self.collection_1
 
+    def get_credentials_ok(self):
+        return Credentials(ok=self.auth_user_one)
+
+    def get_credentials_ok_forbidden(self):
+        return Credentials(ok=self.auth_user_one, forbidden=self.auth_user_two)
+
     collection_payloads = Payloads(
         ok={"name": "name", "description": "description"},
         bad_request={"name": "name"},
         conflict={"name": "collection-2", "description": "description"},
     )
 
-    list = ListModelViewTest(
+    test_list = ListModelViewTest(
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
+        credentials_getter=get_credentials_ok,
     )
-    create = CreateModelViewTest(
+    test_create = CreateModelViewTest(
         payloads=collection_payloads,
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
+        credentials_getter=get_credentials_ok,
     )
-    retrieve = RetrieveModelViewTest(
+    test_retrieve = RetrieveModelViewTest(
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
+        credentials_getter=get_credentials_ok,
     )
-    update = UpdateModelViewTest(
+    test_update = UpdateModelViewTest(
         payloads=collection_payloads,
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(
-            ok=self.auth_user_one, forbidden=self.auth_user_two
-        ),
+        credentials_getter=get_credentials_ok_forbidden,
     )
-    delete = DeleteModelViewTest(
-        instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(
-            ok=self.auth_user_one, forbidden=self.auth_user_two
-        ),
+    test_delete = DeleteModelViewTest(
+        instance_getter=get_instance, credentials_getter=get_credentials_ok_forbidden
     )
 
     item_payloads = Payloads(
@@ -61,14 +62,12 @@ class CollectionViewSetTest(ModelViewSetTest, BaseTest):
         },
     )
 
-    list_items = ListModelViewTest(
+    test_list_items = ListModelViewTest(
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
+        credentials_getter=get_credentials_ok,
     )
-    create_item = CreateModelViewTest(
+    test_create_item = CreateModelViewTest(
         payloads=item_payloads,
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(
-            ok=self.auth_user_one, forbidden=self.auth_user_two
-        ),
+        credentials_getter=get_credentials_ok_forbidden,
     )

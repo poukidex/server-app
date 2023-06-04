@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
 
-from ninja import Schema
+from ninja import FilterSchema, Schema
 
 
 class ErrorOutput(Schema):
@@ -55,3 +55,7 @@ class StorableOutput(BaseStorable):
 class OptionalStorableOutput(BaseStorable):
     object_name: Optional[str]
     presigned_url: Optional[str]
+
+
+class OrderableQuery(FilterSchema):
+    order_by: Optional[List[str]]

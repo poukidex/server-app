@@ -36,7 +36,11 @@ class AbstractModelViewTest:
     model_view: Type[AbstractModelView]
     name: str
 
-    def __init__(self, instance_getter: Callable, credentials_getter: Callable) -> None:
+    def __init__(
+        self,
+        instance_getter: Callable[[TestCase], Model],
+        credentials_getter: Callable[[TestCase], Credentials],
+    ) -> None:
         self.get_instance = instance_getter
         self.get_credentials = credentials_getter
 
@@ -50,7 +54,10 @@ class AbstractModelViewTest:
     def get_model_view(self):
         for attr_name in dir(self.model_view_set):
             attr_value = getattr(self.model_view_set, attr_name)
-            if isinstance(attr_value, self.model_view) and attr_name == self.name:
+            if (
+                isinstance(attr_value, self.model_view)
+                and self.name == f"test_{attr_name}"
+            ):
                 return attr_value
 
     def assert_content_equals_schema(
@@ -62,6 +69,7 @@ class AbstractModelViewTest:
         self.test_case.assertTrue(model.objects.filter(pk=content["id"]).exists())
         self.test_case.assertEqual(model.objects.filter(pk=content["id"]).count(), 1)
 
+        # TODO: get_queryset() should be used here
         element = model.objects.get(pk=content["id"])
         self.assert_dict_equals_schema(content, output_schema.from_orm(element))
 

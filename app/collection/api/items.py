@@ -21,7 +21,7 @@ router = Router()
 
 def user_is_collection_creator(func):
     @wraps(func)
-    def wrapper(request, id, *args, **kwargs):
+    def wrapper(request: HttpRequest, id: UUID, *args, **kwargs):
         item = Item.objects.get(id=id)
         if item.collection.creator != request.user:
             raise PermissionDenied()
@@ -47,10 +47,12 @@ class ItemViewSet(ModelViewSet):
         detail=True,
         model=Snap,
         output_schema=SnapOutput,
-        queryset_getter=lambda request, id: Snap.objects.annotate(
+        queryset_getter=lambda request, id: Snap.objects.select_related("user")
+        .annotate(
             nb_likes=Count("likes", filter=Q(likes__liked=True)),
             nb_dislikes=Count("likes", filter=Q(likes__liked=False)),
-        ).filter(item_id=id),
+        )
+        .filter(item_id=id),
     )
 
     @staticmethod
@@ -76,5 +78,5 @@ ItemViewSet.register_routes(router)
     response={HTTPStatus.OK: SnapOutput},
     operation_id="retrieve_my_snap",
 )
-def retrieve_my_snap(request, id: UUID):
+def retrieve_my_snap(request: HttpRequest, id: UUID):
     return HTTPStatus.OK, Snap.objects.get(item_id=id, user=request.user)

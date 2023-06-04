@@ -2,80 +2,61 @@ from http import HTTPStatus
 
 from django.urls import reverse
 
+from collection.api.snaps import SnapViewSet
 from core.models.collections import Item, Like, Snap
-from core.schemas.collections import SnapOutput
 from core.tests.base import BaseTest
+from viewsets.tests.abstract import Credentials, ModelViewSetTest, Payloads
+from viewsets.tests.delete import DeleteModelViewTest
+from viewsets.tests.list import ListModelViewTest
+from viewsets.tests.retrieve import RetrieveModelViewTest
+from viewsets.tests.update import UpdateModelViewTest
 
 
-class TestSnap(BaseTest):
+class SnapViewSetTest(ModelViewSetTest, BaseTest):
+    model_view_set = SnapViewSet
+
     @classmethod
-    def setUpClass(cls) -> None:
-        super().setUpClass()
-
-    def test_retrieve_snap(self):
-        kwargs = {"id": self.second_collection_item_2_snap_2.id}
-        response = self.client.get(
-            reverse("api:snap", kwargs=kwargs), **self.auth_user_one
-        )
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        content = response.json()
-        self.assertDictEqualsSchema(
-            content,
-            SnapOutput.from_orm(self.second_collection_item_2_snap_2),
+    def setUpTestData(cls):
+        super().setUpTestData()
+        item = Item.objects.get(collection=cls.collection_1, name="item-1")
+        cls.snap = Snap.objects.create(
+            item=item,
+            user=cls.user_one,
+            comment="Random comment",
+            object_name="some object_name",
         )
 
-    def _do_test_update_snap(self, auth_user, expected_status):
-        data = {"comment": "some comment", "object_name": "some_object_name"}
-        kwargs = {"id": self.second_collection_item_2_snap_1.id}
-        response = self.client.put(
-            reverse("api:snap", kwargs=kwargs),
-            data=data,
-            content_type="application/json",
-            **auth_user
-        )
-        self.assertEqual(response.status_code, expected_status)
+    def get_instance(self):
+        return self.snap
 
-        if expected_status == HTTPStatus.OK:
-            content = response.json()
+    def get_credentials_ok(self):
+        return Credentials(ok=self.auth_user_one)
 
-            snap_updated = Snap.objects.get(id=self.second_collection_item_2_snap_1.id)
+    def get_credentials_ok_forbidden(self):
+        return Credentials(ok=self.auth_user_one, forbidden=self.auth_user_two)
 
-            self.assertDictEqualsSchema(content, SnapOutput.from_orm(snap_updated))
+    snap_payloads = Payloads(
+        ok={"comment": "comment", "object_name": "object_name"},
+        bad_request={"comment": "comment"},
+    )
 
-    def test_update_snap(self):
-        self._do_test_update_snap(self.auth_user_one, HTTPStatus.OK)
+    test_retrieve = RetrieveModelViewTest(
+        instance_getter=get_instance,
+        credentials_getter=get_credentials_ok,
+    )
+    test_update = UpdateModelViewTest(
+        payloads=snap_payloads,
+        instance_getter=get_instance,
+        credentials_getter=get_credentials_ok_forbidden,
+    )
+    test_delete = DeleteModelViewTest(
+        instance_getter=get_instance, credentials_getter=get_credentials_ok_forbidden
+    )
 
-    def test_update_snap_forbidden(self):
-        self._do_test_update_snap(self.auth_user_two, HTTPStatus.FORBIDDEN)
-
-    def test_delete_snap(self):
-        kwargs = {"id": self.second_collection_item_2_snap_1.id}
-        response = self.client.delete(
-            reverse("api:snap", kwargs=kwargs), **self.auth_user_one
-        )
-        self.assertEqual(response.status_code, HTTPStatus.NO_CONTENT)
-
-        self.assertFalse(
-            Item.objects.filter(id=self.second_collection_item_2_snap_1.id).exists()
-        )
-
-    def test_delete_snap_by_creator(self):
-        kwargs = {"id": self.second_collection_item_2_snap_2.id}
-        response = self.client.delete(
-            reverse("api:snap", kwargs=kwargs), **self.auth_user_one
-        )
-        self.assertEqual(response.status_code, HTTPStatus.NO_CONTENT)
-
-        self.assertFalse(
-            Item.objects.filter(id=self.second_collection_item_2_snap_1.id).exists()
-        )
-
-    def test_delete_snap_forbidden(self):
-        kwargs = {"id": self.second_collection_item_2_snap_1.id}
-        response = self.client.delete(
-            reverse("api:snap", kwargs=kwargs), **self.auth_user_two
-        )
-        self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
+    test_list_likes = ListModelViewTest(
+        instance_getter=get_instance,
+        credentials_getter=get_credentials_ok,
+    )
 
     def _do_test_like(
         self,

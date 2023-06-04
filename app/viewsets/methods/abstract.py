@@ -8,8 +8,6 @@ from ninja import Router
 
 
 class AbstractModelView(ABC):
-    decorators: List[Callable]
-
     def __init__(self, decorators: List[Callable] = None) -> None:
         if decorators is None:
             decorators = []

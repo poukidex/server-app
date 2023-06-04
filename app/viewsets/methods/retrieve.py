@@ -1,8 +1,8 @@
 from http import HTTPStatus
-from typing import Callable, Optional, Type
+from typing import Callable, List, Type
 from uuid import UUID
 
-from django.db.models import Model
+from django.db.models import Model, QuerySet
 from django.http import HttpRequest
 from ninja import Router, Schema
 
@@ -12,17 +12,13 @@ from viewsets.utils import merge_decorators
 
 
 class RetrieveModelView(AbstractModelView):
-    output_schema: Type[Schema]
-    get_queryset: Optional[Callable]
-
     def __init__(
         self,
         output_schema: Type[Schema],
-        queryset_getter: Callable = None,
-        *args,
-        **kwargs,
+        queryset_getter: Callable[..., QuerySet[Model]] = None,
+        decorators: List[Callable] = None,
     ) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(decorators=decorators)
         self.output_schema = output_schema
         self.get_queryset = queryset_getter
 

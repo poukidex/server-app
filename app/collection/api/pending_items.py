@@ -7,7 +7,6 @@ from core.enums import PendingItemStatus
 from core.exceptions import ForbiddenException, IncoherentInput
 from core.models.collections import Item, PendingItem
 from core.schemas.collections import ItemOutput, ItemUpdate, PendingItemSchema
-from core.utils import check_object, update_object_from_schema
 
 router = Router()
 
@@ -19,32 +18,32 @@ router = Router()
     operation_id="accept_pending_item",
 )
 def accept_pending_item(request, id: UUID):
-    pending = (
+    pending_item = (
         PendingItem.objects.select_related("collection")
         .select_for_update("status")
         .get(id=id)
     )
 
-    if pending.collection.creator != request.user:
+    if pending_item.collection.creator != request.user:
         raise ForbiddenException()
 
-    if pending.status != PendingItemStatus.PENDING:
+    if pending_item.status != PendingItemStatus.PENDING:
         raise IncoherentInput(
             detail=["This item has already been validated or refused"]
         )
 
     item = Item(
-        collection=pending.collection,
-        dominant_colors=pending.dominant_colors,
-        name=pending.name,
-        description=pending.description,
-        object_name=pending.object_name,
+        collection=pending_item.collection,
+        dominant_colors=pending_item.dominant_colors,
+        name=pending_item.name,
+        description=pending_item.description,
+        object_name=pending_item.object_name,
     )
-    check_object(item)
+    item.full_clean()
     item.save()
 
-    pending.status = PendingItemStatus.ACCEPTED
-    pending.save()
+    pending_item.status = PendingItemStatus.ACCEPTED
+    pending_item.save()
 
     return HTTPStatus.CREATED, item
 
@@ -56,22 +55,22 @@ def accept_pending_item(request, id: UUID):
     operation_id="refuse_pending_item",
 )
 def refuse_pending_item(request, id: UUID):
-    pending = (
+    pending_item = (
         PendingItem.objects.select_related("collection")
         .select_for_update("status")
         .get(id=id)
     )
 
-    if pending.collection.creator != request.user:
+    if pending_item.collection.creator != request.user:
         raise ForbiddenException()
 
-    if pending.status != PendingItemStatus.PENDING:
+    if pending_item.status != PendingItemStatus.PENDING:
         raise IncoherentInput(
             detail=["This item has already been validated or refused"]
         )
 
-    pending.status = PendingItemStatus.REFUSED
-    pending.save()
+    pending_item.status = PendingItemStatus.REFUSED
+    pending_item.save()
 
     return HTTPStatus.NO_CONTENT, None
 
@@ -83,14 +82,17 @@ def refuse_pending_item(request, id: UUID):
     operation_id="update_pending_item",
 )
 def update_pending_item(request, id: UUID, payload: ItemUpdate):
-    pending = PendingItem.objects.select_related("collection").get(id=id)
+    pending_item = PendingItem.objects.select_related("collection").get(id=id)
 
-    if request.user not in [pending.creator, pending.collection.creator]:
+    if request.user not in [pending_item.creator, pending_item.collection.creator]:
         raise ForbiddenException()
 
-    update_object_from_schema(pending, payload)
+    for attr, value in payload.dict().items():
+        setattr(pending_item, attr, value)
 
-    return HTTPStatus.OK, pending
+    pending_item.full_clean()
+    pending_item.save()
+    return HTTPStatus.OK, pending_item
 
 
 @router.delete(
@@ -100,11 +102,11 @@ def update_pending_item(request, id: UUID, payload: ItemUpdate):
     operation_id="delete_pending_item",
 )
 def delete_pending_item(request, id: UUID):
-    pending = PendingItem.objects.select_related("collection").get(id=id)
+    pending_item = PendingItem.objects.select_related("collection").get(id=id)
 
-    if request.user not in [pending.creator, pending.collection.creator]:
+    if request.user not in [pending_item.creator, pending_item.collection.creator]:
         raise ForbiddenException()
 
-    pending.delete()
+    pending_item.delete()
 
     return HTTPStatus.NO_CONTENT, None

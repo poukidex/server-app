@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from core.tests.base import BaseTest
 from userauth.models import User
-from userauth.schemas import UserSchema
+from userauth.schemas import UserOutput
 
 
 class TestUsers(BaseTest):
@@ -23,7 +23,7 @@ class TestUsers(BaseTest):
         for item in content:
             self.assertDictEqualsSchema(
                 item,
-                UserSchema.from_orm(
+                UserOutput.from_orm(
                     User.objects.get(id=item["id"], is_superuser=False)
                 ),
             )
@@ -35,7 +35,7 @@ class TestUsers(BaseTest):
         self.assertEqual(content["id"], str(self.user_one.id))
         self.assertDictEqualsSchema(
             content,
-            UserSchema.from_orm(User.objects.get(id=content["id"], is_superuser=False)),
+            UserOutput.from_orm(User.objects.get(id=content["id"], is_superuser=False)),
         )
 
     def test_update_profile(self):
@@ -57,7 +57,7 @@ class TestUsers(BaseTest):
         user = User.objects.get(id=content["id"])
         self.assertDictEqualsSchema(
             content,
-            UserSchema.from_orm(user),
+            UserOutput.from_orm(user),
         )
         self.assertEqual(user.object_name, "some_object_name")
         self.assertEqual(user.username, "new-username")

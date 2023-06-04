@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Callable, Type
+from typing import Callable, List, Type
 from uuid import UUID
 
 from django.db.models import Model
@@ -19,10 +19,9 @@ class CreateModelView(AbstractModelView):
         pre_save: Callable = None,
         model: Type[Model] = None,
         detail: bool = False,
-        *args,
-        **kwargs,
+        decorators: List[Callable] = None,
     ) -> None:
-        super().__init__(*args, **kwargs)
+        super().__init__(decorators=decorators)
         self.input_schema = input_schema
         self.output_schema = output_schema
         self.pre_save = pre_save

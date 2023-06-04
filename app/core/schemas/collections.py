@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
-from ninja import Schema
+from ninja import FilterSchema, Schema
 
 from core.schemas.common import (
     IdentifiableOutput,
@@ -11,13 +12,13 @@ from core.schemas.common import (
     StorableInput,
     StorableOutput,
 )
-from userauth.schemas import UserSchema
+from userauth.schemas import UserOutput
 
 
 # ======================================================================================
 # Like
 # ======================================================================================
-class LikeQuery(Schema):
+class LikeQuery(FilterSchema):
     liked: Optional[bool]
 
 
@@ -25,9 +26,9 @@ class LikeInput(Schema):
     liked: bool
 
 
-class LikeSchema(Schema):
+class LikeOutput(Schema):
     id: int
-    user: UserSchema
+    user: UserOutput
     liked: bool
 
 
@@ -38,13 +39,10 @@ class SnapInput(StorableInput):
     comment: str
 
 
-class SnapUpdate(StorableInput):
-    comment: str
-
-
 class SnapOutput(IdentifiableOutput, StorableOutput):
+    item_id: UUID
     created_at: datetime
-    user: UserSchema
+    user: UserOutput
     comment: str
 
     nb_likes: Optional[int] = 0
@@ -56,7 +54,7 @@ class SnapOutput(IdentifiableOutput, StorableOutput):
 # ======================================================================================
 class PendingItemSchema(IdentifiableOutput, RepresentableOutput, StorableOutput):
     created_at: datetime
-    creator: UserSchema
+    creator: UserOutput
 
 
 class ItemInput(RepresentableOutput, StorableInput):
@@ -84,6 +82,6 @@ class CollectionInput(RepresentableOutput, OptionalStorableInput):
 
 class CollectionOutput(IdentifiableOutput, RepresentableOutput, OptionalStorableOutput):
     created_at: datetime
-    creator: UserSchema
+    creator: UserOutput
 
     nb_items: Optional[int] = 0

@@ -21,13 +21,13 @@ class PasswordConfirmation(Schema):
         return value
 
 
-class UserUpdate(OptionalStorableInput):
+class UserInput(OptionalStorableInput):
     username: str
     first_name: Optional[str]
     last_name: Optional[str]
 
 
-class UserSchema(IdentifiableOutput, OptionalStorableOutput):
+class UserOutput(IdentifiableOutput, OptionalStorableOutput):
     username: str
     first_name: Optional[str]
     last_name: Optional[str]

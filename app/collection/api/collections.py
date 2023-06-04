@@ -1,7 +1,9 @@
 from functools import wraps
+from uuid import UUID
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
+from django.http import HttpRequest
 from ninja import Router
 
 from core.models.collections import Collection, Item
@@ -11,6 +13,7 @@ from core.schemas.collections import (
     ItemInput,
     ItemOutput,
 )
+from core.schemas.common import OrderableQuery
 from viewsets.methods.abstract import ModelViewSet
 from viewsets.methods.create import CreateModelView
 from viewsets.methods.delete import DeleteModelView
@@ -23,7 +26,7 @@ router = Router()
 
 def user_is_creator(func):
     @wraps(func)
-    def wrapper(request, id, *args, **kwargs):
+    def wrapper(request: HttpRequest, id: UUID, *args, **kwargs):
         collection = Collection.objects.get(id=id)
         if collection.creator != request.user:
             raise PermissionDenied()
@@ -39,6 +42,7 @@ class CollectionViewSet(ModelViewSet):
 
     list = ListModelView(
         output_schema=output_schema,
+        query_schema=OrderableQuery,
         queryset_getter=lambda request: Collection.objects.annotate(
             nb_items=Count("items")
         ),

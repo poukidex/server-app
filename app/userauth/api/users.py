@@ -2,35 +2,46 @@ from http import HTTPStatus
 
 from ninja import Router
 
-from core.utils import update_object_from_schema
 from userauth.models import User
-from userauth.schemas import UserSchema, UserUpdate
+from userauth.schemas import UserInput, UserOutput
+from viewsets.methods.abstract import ModelViewSet
+from viewsets.methods.list import ListModelView
 
 router = Router()
 
 
-@router.get(path="", url_name="users", response={HTTPStatus.OK: list[UserSchema]})
-def list_users(request):
-    return HTTPStatus.OK, User.objects.filter(is_superuser=False).all()
+class UserViewSet(ModelViewSet):
+    model = User
+    input_schema = UserInput
+    output_schema = UserOutput
+
+    list = ListModelView(output_schema=output_schema)
+
+
+UserViewSet.register_routes(router)
 
 
 @router.get(
     path="/me",
     url_name="my_user",
-    response={HTTPStatus.OK: UserSchema},
-    operation_id="get_my_user",
+    response={HTTPStatus.OK: UserOutput},
+    operation_id="retrieve_my_user",
 )
-def get_my_user(request):
+def retrieve_my_user(request):
     return request.user
 
 
 @router.put(
     path="/me",
     url_name="my_user",
-    response={HTTPStatus.OK: UserSchema},
+    response={HTTPStatus.OK: UserOutput},
     operation_id="update_my_user",
 )
-def update_my_user(request, payload: UserUpdate):
+def update_my_user(request, payload: UserInput):
     user = request.user
-    update_object_from_schema(user, payload)
+    for attr, value in payload.dict().items():
+        setattr(user, attr, value)
+
+    user.full_clean()
+    user.save()
     return HTTPStatus.OK, user

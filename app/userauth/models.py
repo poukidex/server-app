@@ -8,7 +8,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from core.models.common import Identifiable, Storable, Traceable
-from core.utils import check_object
 
 
 class UserManager(BaseUserManager):
@@ -22,9 +21,7 @@ class UserManager(BaseUserManager):
 
         user: AbstractUser = self.model(username=username, **extra_fields)
         user.set_password(password)
-
-        check_object(user)
-
+        user.full_clean()
         user.save(using=self._db)
         return user
 

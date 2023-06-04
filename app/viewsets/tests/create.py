@@ -1,5 +1,6 @@
 from http import HTTPStatus
-from typing import Optional
+from typing import Callable, Optional
+from unittest import TestCase
 from uuid import UUID
 
 from django.db.models import Model
@@ -13,10 +14,16 @@ from viewsets.tests.abstract import AbstractModelViewTest, Credentials, Payloads
 
 class CreateModelViewTest(AbstractModelViewTest):
     model_view = CreateModelView
-    payloads: Payloads
 
-    def __init__(self, payloads: Payloads, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        payloads: Payloads,
+        instance_getter: Callable[[TestCase], Model],
+        credentials_getter: Callable[[TestCase], Credentials],
+    ) -> None:
+        super().__init__(
+            instance_getter=instance_getter, credentials_getter=credentials_getter
+        )
         self.payloads = payloads
 
     def create_model(

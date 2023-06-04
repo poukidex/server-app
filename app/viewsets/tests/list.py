@@ -39,6 +39,8 @@ class ListModelViewTest(AbstractModelViewTest):
         content = response.json()
 
         model_view: ListModelView = self.get_model_view()
+
+        # TODO: Refactor get_queryset in abstract.py
         if model_view.get_queryset is not None:
             if model_view.detail:
                 queryset = model_view.get_queryset(None, id)
@@ -46,6 +48,12 @@ class ListModelViewTest(AbstractModelViewTest):
                 queryset = model_view.get_queryset(None)
         else:
             queryset = self.model_view_set.model.objects.get_queryset()
+
+        # TODO: Add support for order_by and other filters
+        # filters_dict = filters.dict()
+        # if "order_by" in filters_dict and filters_dict["order_by"] is not None:
+        #     queryset = queryset.order_by(*filters_dict.pop("order_by"))
+
         self.assert_content_equals_schema_list(
             content, queryset=queryset, output_schema=model_view.output_schema
         )

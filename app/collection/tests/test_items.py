@@ -25,6 +25,12 @@ class ItemViewSetTest(ModelViewSetTest, BaseTest):
     def get_instance(self):
         return self.item
 
+    def get_credentials_ok(self):
+        return Credentials(ok=self.auth_user_one)
+
+    def get_credentials_ok_forbidden(self):
+        return Credentials(ok=self.auth_user_one, forbidden=self.auth_user_two)
+
     item_payloads = Payloads(
         ok={
             "name": "new-item",
@@ -39,22 +45,17 @@ class ItemViewSetTest(ModelViewSetTest, BaseTest):
         },
     )
 
-    retrieve = RetrieveModelViewTest(
+    test_retrieve = RetrieveModelViewTest(
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
+        credentials_getter=get_credentials_ok,
     )
-    update = UpdateModelViewTest(
+    test_update = UpdateModelViewTest(
         payloads=item_payloads,
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(
-            ok=self.auth_user_one, forbidden=self.auth_user_two
-        ),
+        credentials_getter=get_credentials_ok_forbidden,
     )
-    delete = DeleteModelViewTest(
-        instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(
-            ok=self.auth_user_one, forbidden=self.auth_user_two
-        ),
+    test_delete = DeleteModelViewTest(
+        instance_getter=get_instance, credentials_getter=get_credentials_ok_forbidden
     )
 
     snap_payloads = Payloads(
@@ -62,14 +63,14 @@ class ItemViewSetTest(ModelViewSetTest, BaseTest):
         bad_request={"comment": "comment"},
     )
 
-    list_snaps = ListModelViewTest(
+    test_list_snaps = ListModelViewTest(
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
+        credentials_getter=get_credentials_ok,
     )
-    create_snap = CreateModelViewTest(
+    test_create_snap = CreateModelViewTest(
         payloads=snap_payloads,
         instance_getter=get_instance,
-        credentials_getter=lambda self: Credentials(ok=self.auth_user_one),
+        credentials_getter=get_credentials_ok,
     )
 
     def test_retrieve_my_snap(self):
