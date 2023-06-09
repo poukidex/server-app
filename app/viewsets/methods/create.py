@@ -16,20 +16,22 @@ class CreateModelView(AbstractModelView):
         self,
         input_schema: Type[Schema],
         output_schema: Type[Schema],
-        pre_save: Callable = None,
-        model: Type[Model] = None,
-        detail: bool = False,
         decorators: List[Callable] = None,
+        is_instance_view: bool = False,
+        model: Type[Model] = None,
+        pre_save: Callable[..., None] = None,
+        post_save: Callable[..., None] = None,
     ) -> None:
         super().__init__(decorators=decorators)
         self.input_schema = input_schema
         self.output_schema = output_schema
-        self.pre_save = pre_save
+        self.is_instance_view = is_instance_view
         self.model = model
-        self.detail = detail
+        self.pre_save = pre_save
+        self.post_save = post_save
 
     def register_route(self, router: Router, model: Type[Model]) -> None:
-        if self.detail:
+        if self.is_instance_view:
             self.register_instance_route(router, model)
         else:
             self.register_collection_route(router, model)
@@ -55,9 +57,11 @@ class CreateModelView(AbstractModelView):
             for field, value in payload.dict(exclude_unset=True).items():
                 setattr(instance, field, value)
             if self.pre_save:
-                self.pre_save(instance, request)
+                self.pre_save(request, instance)
             instance.full_clean()
             instance.save()
+            if self.post_save:
+                self.post_save(request, instance)
             return HTTPStatus.CREATED, instance
 
     def register_instance_route(self, router: Router, model: Type[Model]) -> None:
@@ -84,7 +88,9 @@ class CreateModelView(AbstractModelView):
             for field, value in payload.dict(exclude_unset=True).items():
                 setattr(instance, field, value)
             if self.pre_save:
-                self.pre_save(instance, request, id)
+                self.pre_save(request, id, instance)
             instance.full_clean()
             instance.save()
+            if self.post_save:
+                self.post_save(request, id, instance)
             return HTTPStatus.CREATED, instance

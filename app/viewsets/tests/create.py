@@ -1,9 +1,9 @@
 from http import HTTPStatus
 from typing import Callable, Optional
-from unittest import TestCase
 from uuid import UUID
 
 from django.db.models import Model
+from django.test import TestCase
 from django.urls import reverse
 from requests import Response
 
@@ -34,7 +34,7 @@ class CreateModelViewTest(AbstractModelViewTest):
 
         model_view: CreateModelView = self.get_model_view()
         model_name = utils.to_snake_case(self.model_view_set.model.__name__)
-        if model_view.detail:
+        if model_view.is_instance_view:
             related_model_name = utils.to_snake_case(model_view.model.__name__)
             url_name = f"{model_name}_{related_model_name}s"
             kwargs = {"id": id}
@@ -54,12 +54,14 @@ class CreateModelViewTest(AbstractModelViewTest):
         content = response.json()
 
         model_view: CreateModelView = self.get_model_view()
-        if model_view.detail:
+        if model_view.is_instance_view:
             model = model_view.model
         else:
             model = self.model_view_set.model
         self.assert_content_equals_schema(
-            content, model=model, output_schema=model_view.output_schema
+            content,
+            queryset=model.objects.get_queryset(),
+            output_schema=model_view.output_schema,
         )
 
     def test_create_model_ok(self):

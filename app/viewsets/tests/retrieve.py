@@ -27,14 +27,20 @@ class RetrieveModelViewTest(AbstractModelViewTest):
             **credentials,
         )
 
-    def assert_response_is_ok(self, response: Response):
+    def assert_response_is_ok(self, response: Response, id: UUID):
         self.test_case.assertEqual(response.status_code, HTTPStatus.OK)
         content = response.json()
 
         model_view: RetrieveModelView = self.get_model_view()
+
+        if model_view.get_queryset is not None:
+            queryset = model_view.get_queryset(id)
+        else:
+            queryset = self.model_view_set.model.objects.get_queryset()
+
         self.assert_content_equals_schema(
             content,
-            model=self.model_view_set.model,
+            queryset=queryset,
             output_schema=model_view.output_schema,
         )
 
@@ -42,7 +48,7 @@ class RetrieveModelViewTest(AbstractModelViewTest):
         credentials: Credentials = self.get_credentials(self.test_case)
         instance: Model = self.get_instance(self.test_case)
         response = self.retrieve_model(id=instance.pk, credentials=credentials.ok)
-        self.assert_response_is_ok(response)
+        self.assert_response_is_ok(response, id=instance.pk)
 
     def test_retrieve_model_unauthorized(self):
         instance: Model = self.get_instance(self.test_case)

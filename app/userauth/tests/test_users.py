@@ -1,47 +1,52 @@
-from http import HTTPStatus
+from __future__ import annotations
 
+from http import HTTPStatus
+from typing import Union
+
+from django.test import TestCase
 from django.urls import reverse
 
 from core.tests.base import BaseTest
+from userauth.api.users import UserViewSet
 from userauth.models import User
 from userauth.schemas import UserOutput
+from viewsets.tests.abstract import Credentials, ModelViewSetTest
+from viewsets.tests.list import ListModelViewTest
 
 
-class TestUsers(BaseTest):
+class UserViewSetTest(ModelViewSetTest, BaseTest):
+    model_view_set = UserViewSet
+
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
 
-    def test_list_users(self):
-        kwargs = {}
-        response = self.client.get(
-            reverse("api:users", kwargs=kwargs), **self.auth_user_one
-        )
-        self.assertEqual(response.status_code, HTTPStatus.OK)
-        content = response.json()
-        self.assertEqual(len(content), 3)
-        for item in content:
-            self.assertDictEqualsSchema(
-                item,
-                UserOutput.from_orm(
-                    User.objects.get(id=item["id"], is_superuser=False)
-                ),
-            )
+    def get_instance(self: Union[UserViewSetTest, TestCase]):
+        return self.user_one
+
+    def get_credentials_ok(self: Union[UserViewSetTest, TestCase]):
+        return Credentials(ok=self.auth_user_one)
+
+    test_list = ListModelViewTest(
+        instance_getter=get_instance,
+        credentials_getter=get_credentials_ok,
+    )
 
     def test_get_my_user(self):
         response = self.client.get(reverse("api:my_user"), **self.auth_user_one)
         self.assertEqual(response.status_code, HTTPStatus.OK)
+
         content = response.json()
-        self.assertEqual(content["id"], str(self.user_one.id))
+        user = User.objects.get(id=content["id"])
         self.assertDictEqualsSchema(
             content,
-            UserOutput.from_orm(User.objects.get(id=content["id"], is_superuser=False)),
+            UserOutput.from_orm(user),
         )
 
-    def test_update_profile(self):
+    def test_update_my_user(self):
         data = {
-            "object_name": "some_object_name",
-            "username": "new-username",
+            "object_name": "object_name",
+            "username": "adupont",
             "first_name": "antoine",
             "last_name": "dupont",
         }
@@ -49,20 +54,13 @@ class TestUsers(BaseTest):
             reverse("api:my_user"),
             data=data,
             content_type="application/json",
-            **self.auth_user_one
+            **self.auth_user_one,
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
+
         content = response.json()
-        self.assertEqual(content["id"], str(self.user_one.id))
         user = User.objects.get(id=content["id"])
         self.assertDictEqualsSchema(
             content,
             UserOutput.from_orm(user),
         )
-        self.assertEqual(user.object_name, "some_object_name")
-        self.assertEqual(user.username, "new-username")
-        self.assertEqual(user.first_name, "antoine")
-        self.assertEqual(user.last_name, "dupont")
-        self.assertEqual(
-            content["presigned_url"], "presigned_url"
-        )  # mock return 'presigned_url'

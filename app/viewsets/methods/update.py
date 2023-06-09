@@ -17,10 +17,14 @@ class UpdateModelView(AbstractModelView):
         input_schema: Type[Schema],
         output_schema: Type[Schema],
         decorators: List[Callable] = None,
+        pre_save: Callable[[HttpRequest, Model], None] = None,
+        post_save: Callable[[HttpRequest, Model], None] = None,
     ) -> None:
         super().__init__(decorators=decorators)
         self.input_schema = input_schema
         self.output_schema = output_schema
+        self.pre_save = pre_save
+        self.post_save = post_save
 
     def register_route(self, router: Router, model: Type[Model]) -> None:
         model_name = utils.to_snake_case(model.__name__)
@@ -39,9 +43,13 @@ class UpdateModelView(AbstractModelView):
         )
         @merge_decorators(self.decorators)
         def update_model(request: HttpRequest, id: UUID, payload: input_schema):
-            instance = model.objects.get(pk=id)
+            instance = model.objects.get(id=id)
             for field, value in payload.dict(exclude_unset=True).items():
                 setattr(instance, field, value)
+            if self.pre_save is not None:
+                self.pre_save(request, instance)
             instance.full_clean()
             instance.save()
+            if self.post_save is not None:
+                self.post_save(request, instance)
             return HTTPStatus.OK, instance

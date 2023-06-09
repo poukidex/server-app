@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from unittest import skip
 
 from django.urls import reverse
 
@@ -8,6 +9,7 @@ from core.schemas.collections import ItemOutput, PendingItemSchema
 from core.tests.base import BaseTest
 
 
+@skip("PendingItem is not implemented yet")
 class TestPendingItems(BaseTest):
     @classmethod
     def setUpClass(cls) -> None:

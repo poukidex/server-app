@@ -44,10 +44,10 @@ class ItemViewSet(ModelViewSet):
     delete = DeleteModelView(decorators=[user_is_collection_creator])
 
     list_snaps = ListModelView(
-        detail=True,
+        is_instance_view=True,
         model=Snap,
         output_schema=SnapOutput,
-        queryset_getter=lambda request, id: Snap.objects.select_related("user")
+        queryset_getter=lambda id: Snap.objects.select_related("user")
         .annotate(
             nb_likes=Count("likes", filter=Q(likes__liked=True)),
             nb_dislikes=Count("likes", filter=Q(likes__liked=False)),
@@ -56,12 +56,12 @@ class ItemViewSet(ModelViewSet):
     )
 
     @staticmethod
-    def pre_save_snap(instance: Snap, request: HttpRequest, id: UUID):
+    def pre_save_snap(request: HttpRequest, id: UUID, instance: Snap):
         instance.item_id = id
         instance.user = request.user
 
     create_snap = CreateModelView(
-        detail=True,
+        is_instance_view=True,
         model=Snap,
         input_schema=SnapInput,
         output_schema=SnapOutput,

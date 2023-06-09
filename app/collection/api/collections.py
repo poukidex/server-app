@@ -42,15 +42,13 @@ class CollectionViewSet(ModelViewSet):
 
     list = ListModelView(
         output_schema=output_schema,
-        query_schema=OrderableQuery,
-        queryset_getter=lambda request: Collection.objects.annotate(
-            nb_items=Count("items")
-        ),
+        filter_schema=OrderableQuery,
+        queryset_getter=lambda: Collection.objects.annotate(nb_items=Count("items")),
     )
     create = CreateModelView(
         input_schema=input_schema,
         output_schema=output_schema,
-        pre_save=lambda instance, request: setattr(instance, "creator", request.user),
+        pre_save=lambda request, instance: setattr(instance, "creator", request.user),
     )
     retrieve = RetrieveModelView(output_schema=output_schema)
     update = UpdateModelView(
@@ -61,17 +59,17 @@ class CollectionViewSet(ModelViewSet):
     delete = DeleteModelView(decorators=[user_is_creator])
 
     list_items = ListModelView(
-        detail=True,
+        is_instance_view=True,
         model=Item,
         output_schema=ItemOutput,
-        queryset_getter=lambda request, id: Item.objects.filter(collection_id=id),
+        queryset_getter=lambda id: Item.objects.filter(collection_id=id),
     )
     create_item = CreateModelView(
-        detail=True,
+        is_instance_view=True,
         model=Item,
         input_schema=ItemInput,
         output_schema=ItemOutput,
-        pre_save=lambda instance, request, id: setattr(instance, "collection_id", id),
+        pre_save=lambda request, id, instance: setattr(instance, "collection_id", id),
         decorators=[user_is_creator],
     )
 

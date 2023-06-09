@@ -1,5 +1,9 @@
-from http import HTTPStatus
+from __future__ import annotations
 
+from http import HTTPStatus
+from typing import Union
+
+from django.test import TestCase
 from django.urls import reverse
 
 from collection.api.snaps import SnapViewSet
@@ -14,6 +18,7 @@ from viewsets.tests.update import UpdateModelViewTest
 
 class SnapViewSetTest(ModelViewSetTest, BaseTest):
     model_view_set = SnapViewSet
+    snap: Snap
 
     @classmethod
     def setUpTestData(cls):
@@ -25,14 +30,19 @@ class SnapViewSetTest(ModelViewSetTest, BaseTest):
             comment="Random comment",
             object_name="some object_name",
         )
+        Like.objects.create(
+            snap=cls.snap,
+            user=cls.user_one,
+            liked=True,
+        )
 
-    def get_instance(self):
+    def get_instance(self: Union[SnapViewSetTest, TestCase]):
         return self.snap
 
-    def get_credentials_ok(self):
+    def get_credentials_ok(self: Union[SnapViewSetTest, TestCase]):
         return Credentials(ok=self.auth_user_one)
 
-    def get_credentials_ok_forbidden(self):
+    def get_credentials_ok_forbidden(self: Union[SnapViewSetTest, TestCase]):
         return Credentials(ok=self.auth_user_one, forbidden=self.auth_user_two)
 
     snap_payloads = Payloads(
@@ -58,109 +68,52 @@ class SnapViewSetTest(ModelViewSetTest, BaseTest):
         credentials_getter=get_credentials_ok,
     )
 
-    def _do_test_like(
-        self,
-        approval: bool,
-        snap: Snap,
-        auth_user,
-        user,
-        expected_code: int,
-    ):
-        data = {"liked": approval}
-        kwargs = {"id": snap.id}
-        response = self.client.post(
-            reverse("api:snap_likes", kwargs=kwargs),
-            data=data,
-            content_type="application/json",
-            **auth_user
-        )
-        self.assertEqual(response.status_code, expected_code)
-
-        if expected_code == HTTPStatus.OK:
-            content = response.json()
-            self.assertEqual(content["liked"], approval)
-            self.assertEqual(content["user"]["id"], str(user.id))
-            approbation = Like.objects.get(snap=snap, user=user)
-            self.assertEqual(approbation.liked, approval)
-
-    def test_like(self):
-        self._do_test_like(
-            True,
-            self.second_collection_item_2_snap_2,
-            self.auth_user_one,
-            self.user_one,
-            HTTPStatus.OK,
-        )
-
-    def test_dislike(self):
-        self._do_test_like(
-            False,
-            self.second_collection_item_2_snap_2,
-            self.auth_user_one,
-            self.user_one,
-            HTTPStatus.OK,
-        )
-
-    def test_like_my_snap(self):
-        self._do_test_like(
-            True,
-            self.second_collection_item_2_snap_1,
-            self.auth_user_one,
-            self.user_one,
-            HTTPStatus.OK,
-        )
-
-    def test_get_my_approbation(self):
-        Like.objects.create(
-            snap=self.second_collection_item_2_snap_2,
-            user=self.user_one,
-            liked=True,
-        )
-
-        kwargs = {"id": self.second_collection_item_2_snap_2.id}
+    def test_retrieve_my_like_ok(self):
+        kwargs = {"id": self.snap.id}
         response = self.client.get(
             reverse("api:snap_like", kwargs=kwargs), **self.auth_user_one
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
         content = response.json()
-        self.assertEqual(content["liked"], True)
-        self.assertEqual(content["user"]["id"], str(self.user_one.id))
+        like = Like.objects.get(snap_id=self.snap.id, user=self.user_one)
+        self.assertEqual(content["liked"], like.liked)
+        self.assertEqual(content["user"]["id"], str(like.user.id))
 
-    def test_list_approbations(self):
-        app1 = Like.objects.create(
-            snap=self.second_collection_item_2_snap_2,
-            user=self.user_one,
-            liked=True,
-        )
-
-        app2 = Like.objects.create(
-            snap=self.second_collection_item_2_snap_2,
-            user=self.user_two,
-            liked=True,
-        )
-
-        kwargs = {"id": self.second_collection_item_2_snap_2.id}
-        response = self.client.get(
-            reverse("api:snap_likes", kwargs=kwargs), **self.auth_user_one
+    def test_update_my_like_ok(self):
+        kwargs = {"id": self.snap.id}
+        data = {"liked": False}
+        response = self.client.put(
+            reverse("api:snap_like", kwargs=kwargs),
+            data=data,
+            content_type="application/json",
+            **self.auth_user_one,
         )
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-        content = response.json()["items"]
-        self.assertEqual(len(content), 2)
-        ids = [app["id"] for app in content]
+        content = response.json()
+        like = Like.objects.get(snap_id=self.snap.id, user=self.user_one)
+        self.assertEqual(content["liked"], like.liked)
+        self.assertEqual(content["user"]["id"], str(like.user.id))
 
-        self.assertIn(app1.id, ids)
-        self.assertIn(app2.id, ids)
-
-    def test_delete_my_approbation(self):
-        Like.objects.create(
-            snap=self.second_collection_item_2_snap_2,
-            user=self.user_one,
-            liked=True,
+    def test_create_my_like_ok(self):
+        kwargs = {"id": self.snap.id}
+        data = {"liked": False}
+        response = self.client.put(
+            reverse("api:snap_like", kwargs=kwargs),
+            data=data,
+            content_type="application/json",
+            **self.auth_user_two,
         )
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
-        kwargs = {"id": self.second_collection_item_2_snap_2.id}
+        content = response.json()
+        like = Like.objects.get(snap_id=self.snap.id, user=self.user_two)
+        self.assertEqual(content["liked"], like.liked)
+        self.assertEqual(content["user"]["id"], str(like.user.id))
+
+    def test_delete_my_like_ok(self):
+        kwargs = {"id": self.snap.id}
         response = self.client.delete(
             reverse("api:snap_like", kwargs=kwargs), **self.auth_user_one
         )

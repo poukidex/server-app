@@ -31,8 +31,6 @@ class AbstractModelViewTest:
     model_view_set: ModelViewSet
     test_case: TestCase
     client: Client
-    get_instance: Callable[[TestCase], Model]
-    get_credentials: Callable[[TestCase], Credentials]
     model_view: Type[AbstractModelView]
     name: str
 
@@ -61,16 +59,15 @@ class AbstractModelViewTest:
                 return attr_value
 
     def assert_content_equals_schema(
-        self, content: dict, model: Type[Model], output_schema: Type[Schema]
+        self, content: dict, queryset: QuerySet[Model], output_schema: Type[Schema]
     ):
         self.test_case.assertIsInstance(content, dict)
 
         self.test_case.assertIn("id", content)
-        self.test_case.assertTrue(model.objects.filter(pk=content["id"]).exists())
-        self.test_case.assertEqual(model.objects.filter(pk=content["id"]).count(), 1)
+        self.test_case.assertTrue(queryset.filter(pk=content["id"]).exists())
+        self.test_case.assertEqual(queryset.filter(pk=content["id"]).count(), 1)
 
-        # TODO: get_queryset() should be used here
-        element = model.objects.get(pk=content["id"])
+        element = queryset.get(pk=content["id"])
         self.assert_dict_equals_schema(content, output_schema.from_orm(element))
 
     def assert_dict_equals_schema(self, element: dict, schema: Schema):
@@ -154,7 +151,7 @@ class ModelViewSetTestMeta(type):
                     if isinstance(method, ListModelView) or isinstance(
                         method, CreateModelView
                     ):
-                        if method.detail:
+                        if method.is_instance_view:
                             related_model_name = method.model.__name__.lower()
                             substring_replace = f"{model_name}_{related_model_name}"
                     new_test_name = test_name.replace("model", substring_replace)

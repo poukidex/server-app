@@ -15,7 +15,7 @@ class RetrieveModelView(AbstractModelView):
     def __init__(
         self,
         output_schema: Type[Schema],
-        queryset_getter: Callable[..., QuerySet[Model]] = None,
+        queryset_getter: Callable[[UUID], QuerySet[Model]] = None,
         decorators: List[Callable] = None,
     ) -> None:
         super().__init__(decorators=decorators)
@@ -39,7 +39,7 @@ class RetrieveModelView(AbstractModelView):
         @merge_decorators(self.decorators)
         def retrieve_model(request: HttpRequest, id: UUID):
             if self.get_queryset is not None:
-                queryset = self.get_queryset(request, id)
+                queryset = self.get_queryset(id)
             else:
                 queryset = model.objects.get_queryset()
             instance = queryset.get(pk=id)

@@ -43,8 +43,8 @@ class SnapViewSet(ModelViewSet):
 
     list = ListModelView(
         output_schema=output_schema,
-        query_schema=OrderableQuery,
-        queryset_getter=lambda request, id: Snap.objects.select_related("user")
+        filter_schema=OrderableQuery,
+        queryset_getter=lambda id: Snap.objects.select_related("user")
         .annotate(
             nb_likes=Count("likes", filter=Q(likes__liked=True)),
             nb_dislikes=Count("likes", filter=Q(likes__liked=False)),
@@ -60,11 +60,11 @@ class SnapViewSet(ModelViewSet):
     delete = DeleteModelView(decorators=[user_is_creator])
 
     list_likes = ListModelView(
-        detail=True,
+        is_instance_view=True,
         model=Like,
         output_schema=LikeOutput,
-        query_schema=LikeQuery,
-        queryset_getter=lambda request, id: Snap.objects.filter(snap_id=id),
+        filter_schema=LikeQuery,
+        queryset_getter=lambda id: Like.objects.filter(snap_id=id),
     )
 
 
@@ -78,16 +78,17 @@ SnapViewSet.register_routes(router)
     operation_id="retrieve_my_like",
 )
 def retrieve_my_like(request: HttpRequest, id: UUID):
-    return HTTPStatus.OK, Like.objects.get(snap_id=id, user=request.user)
+    like = Like.objects.get(snap_id=id, user=request.user)
+    return HTTPStatus.OK, like
 
 
-@router.post(
+@router.put(
     path="/{id}/like",
     url_name="snap_like",
     response={HTTPStatus.OK: LikeOutput},
-    operation_id="update_my_like",
+    operation_id="update_or_create_my_like",
 )
-def update_my_like(request: HttpRequest, id: UUID, payload: LikeInput):
+def update_or_create_my_like(request: HttpRequest, id: UUID, payload: LikeInput):
     like, _ = Like.objects.get_or_create(snap_id=id, user=request.user)
     like.liked = payload.liked
     like.save()

@@ -20,7 +20,7 @@ class ListModelViewTest(AbstractModelViewTest):
 
         model_view: ListModelView = self.get_model_view()
         model_name = utils.to_snake_case(self.model_view_set.model.__name__)
-        if model_view.detail:
+        if model_view.is_instance_view:
             related_model_name = utils.to_snake_case(model_view.model.__name__)
             url_name = f"{model_name}_{related_model_name}s"
             kwargs = {"id": id}
@@ -40,19 +40,16 @@ class ListModelViewTest(AbstractModelViewTest):
 
         model_view: ListModelView = self.get_model_view()
 
-        # TODO: Refactor get_queryset in abstract.py
-        if model_view.get_queryset is not None:
-            if model_view.detail:
-                queryset = model_view.get_queryset(None, id)
+        if model_view.is_instance_view:
+            if model_view.get_queryset is not None:
+                queryset = model_view.get_queryset(id)
             else:
-                queryset = model_view.get_queryset(None)
+                queryset = model_view.model.objects.get_queryset()
         else:
-            queryset = self.model_view_set.model.objects.get_queryset()
-
-        # TODO: Add support for order_by and other filters
-        # filters_dict = filters.dict()
-        # if "order_by" in filters_dict and filters_dict["order_by"] is not None:
-        #     queryset = queryset.order_by(*filters_dict.pop("order_by"))
+            if model_view.get_queryset is not None:
+                queryset = model_view.get_queryset()
+            else:
+                queryset = self.model_view_set.model.objects.get_queryset()
 
         self.assert_content_equals_schema_list(
             content, queryset=queryset, output_schema=model_view.output_schema

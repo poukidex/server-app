@@ -72,8 +72,6 @@ class Snap(Identifiable, Traceable, Storable):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="snaps")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="snaps")
     comment = models.CharField(max_length=255)
-    dominant_colors = models.JSONField(null=True, blank=True)
-    object_name = models.CharField(max_length=255)
 
     def __str__(self):
         return f"Snap of {self.user} on {self.item}"

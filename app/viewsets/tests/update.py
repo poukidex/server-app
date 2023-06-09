@@ -1,10 +1,10 @@
 import uuid
 from http import HTTPStatus
 from typing import Callable, Optional
-from unittest import TestCase
 from uuid import UUID
 
 from django.db.models import Model
+from django.test import TestCase
 from django.urls import reverse
 from requests import Response
 
@@ -49,7 +49,7 @@ class UpdateModelViewTest(AbstractModelViewTest):
         model_view: UpdateModelView = self.get_model_view()
         self.assert_content_equals_schema(
             content,
-            model=self.model_view_set.model,
+            queryset=self.model_view_set.model.objects.get_queryset(),
             output_schema=model_view.output_schema,
         )
 

@@ -12,8 +12,15 @@ from viewsets.utils import merge_decorators
 
 
 class DeleteModelView(AbstractModelView):
-    def __init__(self, decorators: List[Callable] = None) -> None:
+    def __init__(
+        self,
+        decorators: List[Callable] = None,
+        pre_delete: Callable[[HttpRequest, Model], None] = None,
+        post_delete: Callable[[HttpRequest, UUID], None] = None,
+    ) -> None:
         super().__init__(decorators=decorators)
+        self.pre_delete = pre_delete
+        self.post_delete = post_delete
 
     def register_route(self, router: Router, model: Type[Model]) -> None:
         model_name = utils.to_snake_case(model.__name__)
@@ -30,5 +37,9 @@ class DeleteModelView(AbstractModelView):
         @merge_decorators(self.decorators)
         def delete_model(request: HttpRequest, id: UUID):
             instance = model.objects.get(pk=id)
+            if self.pre_delete is not None:
+                self.pre_delete(request, instance)
             instance.delete()
+            if self.post_delete is not None:
+                self.post_delete(request, id)
             return HTTPStatus.NO_CONTENT, None

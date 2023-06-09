@@ -12,7 +12,6 @@ router = Router()
 
 class UserViewSet(ModelViewSet):
     model = User
-    input_schema = UserInput
     output_schema = UserOutput
 
     list = ListModelView(output_schema=output_schema)

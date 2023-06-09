@@ -1,5 +1,9 @@
-from http import HTTPStatus
+from __future__ import annotations
 
+from http import HTTPStatus
+from typing import Union
+
+from django.test import TestCase
 from django.urls import reverse
 
 from collection.api.items import ItemViewSet
@@ -22,13 +26,13 @@ class ItemViewSetTest(ModelViewSetTest, BaseTest):
         super().setUpTestData()
         cls.item = Item.objects.get(collection=cls.collection_1, name="item-1")
 
-    def get_instance(self):
+    def get_instance(self: Union[ItemViewSetTest, TestCase]):
         return self.item
 
-    def get_credentials_ok(self):
+    def get_credentials_ok(self: Union[ItemViewSetTest, TestCase]):
         return Credentials(ok=self.auth_user_one)
 
-    def get_credentials_ok_forbidden(self):
+    def get_credentials_ok_forbidden(self: Union[ItemViewSetTest, TestCase]):
         return Credentials(ok=self.auth_user_one, forbidden=self.auth_user_two)
 
     item_payloads = Payloads(

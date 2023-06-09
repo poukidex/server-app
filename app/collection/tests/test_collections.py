@@ -1,3 +1,9 @@
+from __future__ import annotations
+
+from typing import Union
+
+from django.test import TestCase
+
 from collection.api.collections import CollectionViewSet
 from core.tests.base import BaseTest
 from viewsets.tests.abstract import Credentials, ModelViewSetTest, Payloads
@@ -11,13 +17,13 @@ from viewsets.tests.update import UpdateModelViewTest
 class CollectionViewSetTest(ModelViewSetTest, BaseTest):
     model_view_set = CollectionViewSet
 
-    def get_instance(self):
+    def get_instance(self: Union[CollectionViewSetTest, TestCase]):
         return self.collection_1
 
-    def get_credentials_ok(self):
+    def get_credentials_ok(self: Union[CollectionViewSetTest, TestCase]):
         return Credentials(ok=self.auth_user_one)
 
-    def get_credentials_ok_forbidden(self):
+    def get_credentials_ok_forbidden(self: Union[CollectionViewSetTest, TestCase]):
         return Credentials(ok=self.auth_user_one, forbidden=self.auth_user_two)
 
     collection_payloads = Payloads(
