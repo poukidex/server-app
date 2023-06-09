@@ -19,8 +19,10 @@ class CreateModelView(AbstractModelView):
         decorators: List[Callable] = None,
         is_instance_view: bool = False,
         model: Type[Model] = None,
-        pre_save: Callable[..., None] = None,
-        post_save: Callable[..., None] = None,
+        pre_save: Callable[[HttpRequest, Model], None]
+        | Callable[[HttpRequest, UUID, Model], None] = None,
+        post_save: Callable[[HttpRequest, Model], None]
+        | Callable[[HttpRequest, UUID, Model], None] = None,
     ) -> None:
         super().__init__(decorators=decorators)
         self.input_schema = input_schema
