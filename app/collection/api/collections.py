@@ -5,6 +5,14 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.http import HttpRequest
 from ninja import Router
+from ninja_crud.views import (
+    CreateModelView,
+    DeleteModelView,
+    ListModelView,
+    ModelViewSet,
+    RetrieveModelView,
+    UpdateModelView,
+)
 
 from core.models.collections import Collection, Item
 from core.schemas.collections import (
@@ -14,12 +22,6 @@ from core.schemas.collections import (
     ItemOutput,
 )
 from core.schemas.common import OrderableQuery
-from viewsets.methods.abstract import ModelViewSet
-from viewsets.methods.create import CreateModelView
-from viewsets.methods.delete import DeleteModelView
-from viewsets.methods.list import ListModelView
-from viewsets.methods.retrieve import RetrieveModelView
-from viewsets.methods.update import UpdateModelView
 
 router = Router()
 
@@ -60,13 +62,13 @@ class CollectionViewSet(ModelViewSet):
 
     list_items = ListModelView(
         is_instance_view=True,
-        model=Item,
+        related_model=Item,
         output_schema=ItemOutput,
         queryset_getter=lambda id: Item.objects.filter(collection_id=id),
     )
     create_item = CreateModelView(
         is_instance_view=True,
-        model=Item,
+        related_model=Item,
         input_schema=ItemInput,
         output_schema=ItemOutput,
         pre_save=lambda request, id, instance: setattr(instance, "collection_id", id),

@@ -5,13 +5,12 @@ from typing import Union
 
 from django.test import TestCase
 from django.urls import reverse
+from ninja_crud.tests import Credentials, ListModelViewTest, ModelViewSetTest
 
 from core.tests.base import BaseTest
 from userauth.api.users import UserViewSet
 from userauth.models import User
 from userauth.schemas import UserOutput
-from viewsets.tests.abstract import Credentials, ModelViewSetTest
-from viewsets.tests.list import ListModelViewTest
 
 
 class UserViewSetTest(ModelViewSetTest, BaseTest):

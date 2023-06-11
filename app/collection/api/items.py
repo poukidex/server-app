@@ -6,15 +6,17 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
 from django.http import HttpRequest
 from ninja import Router
+from ninja_crud.views import (
+    CreateModelView,
+    DeleteModelView,
+    ListModelView,
+    ModelViewSet,
+    RetrieveModelView,
+    UpdateModelView,
+)
 
 from core.models.collections import Item, Snap
 from core.schemas.collections import ItemInput, ItemOutput, SnapInput, SnapOutput
-from viewsets.methods.abstract import ModelViewSet
-from viewsets.methods.create import CreateModelView
-from viewsets.methods.delete import DeleteModelView
-from viewsets.methods.list import ListModelView
-from viewsets.methods.retrieve import RetrieveModelView
-from viewsets.methods.update import UpdateModelView
 
 router = Router()
 
@@ -45,7 +47,7 @@ class ItemViewSet(ModelViewSet):
 
     list_snaps = ListModelView(
         is_instance_view=True,
-        model=Snap,
+        related_model=Snap,
         output_schema=SnapOutput,
         queryset_getter=lambda id: Snap.objects.select_related("user")
         .annotate(
@@ -62,7 +64,7 @@ class ItemViewSet(ModelViewSet):
 
     create_snap = CreateModelView(
         is_instance_view=True,
-        model=Snap,
+        related_model=Snap,
         input_schema=SnapInput,
         output_schema=SnapOutput,
         pre_save=pre_save_snap,

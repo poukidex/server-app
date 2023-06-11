@@ -5,17 +5,21 @@ from typing import Union
 
 from django.test import TestCase
 from django.urls import reverse
+from ninja_crud.tests import (
+    CreateModelViewTest,
+    Credentials,
+    DeleteModelViewTest,
+    ListModelViewTest,
+    ModelViewSetTest,
+    Payloads,
+    RetrieveModelViewTest,
+    UpdateModelViewTest,
+)
 
 from collection.api.items import ItemViewSet
 from core.models.collections import Item
 from core.schemas.collections import SnapOutput
 from core.tests.base import BaseTest
-from viewsets.tests.abstract import Credentials, ModelViewSetTest, Payloads
-from viewsets.tests.create import CreateModelViewTest
-from viewsets.tests.delete import DeleteModelViewTest
-from viewsets.tests.list import ListModelViewTest
-from viewsets.tests.retrieve import RetrieveModelViewTest
-from viewsets.tests.update import UpdateModelViewTest
 
 
 class ItemViewSetTest(ModelViewSetTest, BaseTest):
@@ -30,10 +34,12 @@ class ItemViewSetTest(ModelViewSetTest, BaseTest):
         return self.item
 
     def get_credentials_ok(self: Union[ItemViewSetTest, TestCase]):
-        return Credentials(ok=self.auth_user_one)
+        return Credentials(ok=self.auth_user_one, unauthorized={})
 
     def get_credentials_ok_forbidden(self: Union[ItemViewSetTest, TestCase]):
-        return Credentials(ok=self.auth_user_one, forbidden=self.auth_user_two)
+        return Credentials(
+            ok=self.auth_user_one, forbidden=self.auth_user_two, unauthorized={}
+        )
 
     item_payloads = Payloads(
         ok={

@@ -5,15 +5,19 @@ from typing import Union
 
 from django.test import TestCase
 from django.urls import reverse
+from ninja_crud.tests import (
+    Credentials,
+    DeleteModelViewTest,
+    ListModelViewTest,
+    ModelViewSetTest,
+    Payloads,
+    RetrieveModelViewTest,
+    UpdateModelViewTest,
+)
 
 from collection.api.snaps import SnapViewSet
 from core.models.collections import Item, Like, Snap
 from core.tests.base import BaseTest
-from viewsets.tests.abstract import Credentials, ModelViewSetTest, Payloads
-from viewsets.tests.delete import DeleteModelViewTest
-from viewsets.tests.list import ListModelViewTest
-from viewsets.tests.retrieve import RetrieveModelViewTest
-from viewsets.tests.update import UpdateModelViewTest
 
 
 class SnapViewSetTest(ModelViewSetTest, BaseTest):
@@ -40,10 +44,12 @@ class SnapViewSetTest(ModelViewSetTest, BaseTest):
         return self.snap
 
     def get_credentials_ok(self: Union[SnapViewSetTest, TestCase]):
-        return Credentials(ok=self.auth_user_one)
+        return Credentials(ok=self.auth_user_one, unauthorized={})
 
     def get_credentials_ok_forbidden(self: Union[SnapViewSetTest, TestCase]):
-        return Credentials(ok=self.auth_user_one, forbidden=self.auth_user_two)
+        return Credentials(
+            ok=self.auth_user_one, forbidden=self.auth_user_two, unauthorized={}
+        )
 
     snap_payloads = Payloads(
         ok={"comment": "comment", "object_name": "object_name"},

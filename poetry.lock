@@ -440,6 +440,22 @@ doc = ["markdown-include", "mkdocs", "mkdocs-material", "mkdocstrings"]
 test = ["black", "django-stubs", "flake8", "isort", "mypy (==0.931)", "psycopg2-binary", "pytest", "pytest-asyncio", "pytest-cov", "pytest-django"]
 
 [[package]]
+name = "django-ninja-crud"
+version = "0.1.0"
+description = "Django Ninja CRUD is a library that allows you to create CRUD APIs in a few lines of code."
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "django_ninja_crud-0.1.0-py3-none-any.whl", hash = "sha256:6471df36d4ddfb732b56b091f283613bc59421a5c934b7b3973f28e39a536216"},
+    {file = "django_ninja_crud-0.1.0.tar.gz", hash = "sha256:b25c4a81b6ae7a4cb2c9f5a703af095932f0739ee807cd88766d3a4fd81eb593"},
+]
+
+[package.dependencies]
+Django = ">=3.0"
+django-ninja = ">=0.21"
+
+[[package]]
 name = "django-redis"
 version = "5.2.0"
 description = "Full featured redis cache backend for Django."
@@ -1412,4 +1428,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "631ac5e51f7bfbd165ebe053a27950c3cf3d4a72d2525a2c01ebee3c6413a457"
+content-hash = "6dedd4e323c779c55f7a1f49f506f66bf5e754cd60add494d4d94669eecfa7ba"

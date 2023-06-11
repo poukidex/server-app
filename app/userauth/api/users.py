@@ -1,11 +1,10 @@
 from http import HTTPStatus
 
 from ninja import Router
+from ninja_crud.views import ListModelView, ModelViewSet
 
 from userauth.models import User
 from userauth.schemas import UserInput, UserOutput
-from viewsets.methods.abstract import ModelViewSet
-from viewsets.methods.list import ListModelView
 
 router = Router()
 

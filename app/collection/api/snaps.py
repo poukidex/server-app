@@ -6,6 +6,13 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
 from django.http import HttpRequest
 from ninja import Router
+from ninja_crud.views import (
+    DeleteModelView,
+    ListModelView,
+    ModelViewSet,
+    RetrieveModelView,
+    UpdateModelView,
+)
 
 from core.models.collections import Like, Snap
 from core.schemas.collections import (
@@ -16,11 +23,6 @@ from core.schemas.collections import (
     SnapOutput,
 )
 from core.schemas.common import OrderableQuery
-from viewsets.methods.abstract import ModelViewSet
-from viewsets.methods.delete import DeleteModelView
-from viewsets.methods.list import ListModelView
-from viewsets.methods.retrieve import RetrieveModelView
-from viewsets.methods.update import UpdateModelView
 
 router = Router()
 
@@ -61,7 +63,7 @@ class SnapViewSet(ModelViewSet):
 
     list_likes = ListModelView(
         is_instance_view=True,
-        model=Like,
+        related_model=Like,
         output_schema=LikeOutput,
         filter_schema=LikeQuery,
         queryset_getter=lambda id: Like.objects.filter(snap_id=id),

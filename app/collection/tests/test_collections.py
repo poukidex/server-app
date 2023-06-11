@@ -3,15 +3,19 @@ from __future__ import annotations
 from typing import Union
 
 from django.test import TestCase
+from ninja_crud.tests import (
+    CreateModelViewTest,
+    Credentials,
+    DeleteModelViewTest,
+    ListModelViewTest,
+    ModelViewSetTest,
+    Payloads,
+    RetrieveModelViewTest,
+    UpdateModelViewTest,
+)
 
 from collection.api.collections import CollectionViewSet
 from core.tests.base import BaseTest
-from viewsets.tests.abstract import Credentials, ModelViewSetTest, Payloads
-from viewsets.tests.create import CreateModelViewTest
-from viewsets.tests.delete import DeleteModelViewTest
-from viewsets.tests.list import ListModelViewTest
-from viewsets.tests.retrieve import RetrieveModelViewTest
-from viewsets.tests.update import UpdateModelViewTest
 
 
 class CollectionViewSetTest(ModelViewSetTest, BaseTest):
@@ -21,10 +25,12 @@ class CollectionViewSetTest(ModelViewSetTest, BaseTest):
         return self.collection_1
 
     def get_credentials_ok(self: Union[CollectionViewSetTest, TestCase]):
-        return Credentials(ok=self.auth_user_one)
+        return Credentials(ok=self.auth_user_one, unauthorized={})
 
     def get_credentials_ok_forbidden(self: Union[CollectionViewSetTest, TestCase]):
-        return Credentials(ok=self.auth_user_one, forbidden=self.auth_user_two)
+        return Credentials(
+            ok=self.auth_user_one, forbidden=self.auth_user_two, unauthorized={}
+        )
 
     collection_payloads = Payloads(
         ok={"name": "name", "description": "description"},
