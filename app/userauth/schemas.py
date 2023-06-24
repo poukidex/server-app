@@ -3,7 +3,7 @@ from typing import Optional
 from ninja import Schema
 from pydantic import validator
 
-from core.schemas import (
+from core.schemas.common import (
     IdentifiableOutput,
     OptionalStorableInput,
     OptionalStorableOutput,
@@ -21,13 +21,13 @@ class PasswordConfirmation(Schema):
         return value
 
 
-class UserUpdate(OptionalStorableInput):
+class UserInput(OptionalStorableInput):
     username: str
     first_name: Optional[str]
     last_name: Optional[str]
 
 
-class UserSchema(IdentifiableOutput, OptionalStorableOutput):
+class UserOutput(IdentifiableOutput, OptionalStorableOutput):
     username: str
     first_name: Optional[str]
     last_name: Optional[str]

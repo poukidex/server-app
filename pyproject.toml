@@ -9,7 +9,7 @@ all = true
 name = "poukidex"
 version = "0.1.0"
 description = "Backend of Poukidex app"
-authors = ["Thomas Darget <thomasdarget@hotmail.fr>", "Hicham Bakri"]
+authors = ["Thomas Darget <thomasdarget@hotmail.fr>", "Hicham Bakri <hicham.bakri76@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -25,6 +25,7 @@ PyJWT = "^2.5.0"
 django-redis = "^5.2.0"
 google-cloud-storage = "^2.7.0"
 django-cors-headers = "^3.14.0"
+django-ninja-crud = "0.1.2"
 
 
 [tool.poetry.group.dev.dependencies]

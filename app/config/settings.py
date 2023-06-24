@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "userauth",
-    "poukidex",
+    "core",
+    "collections",
 ]
 
 MIDDLEWARE = [
@@ -65,13 +66,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
-
-DJANGORESIZED_DEFAULT_SIZE = [200, 200]
-DJANGORESIZED_DEFAULT_QUALITY = 75
-DJANGORESIZED_DEFAULT_KEEP_META = True
-DJANGORESIZED_DEFAULT_FORCE_FORMAT = "PNG"
-DJANGORESIZED_DEFAULT_FORMAT_EXTENSIONS = {"PNG": ".png"}
-DJANGORESIZED_DEFAULT_NORMALIZE_ROTATION = True
 
 AUTH_USER_MODEL = "userauth.User"
 
