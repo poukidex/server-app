@@ -61,13 +61,13 @@ class CollectionViewSet(ModelViewSet):
     delete = DeleteModelView(decorators=[user_is_creator])
 
     list_items = ListModelView(
-        is_instance_view=True,
+        detail=True,
         related_model=Item,
         output_schema=ItemOutput,
         queryset_getter=lambda id: Item.objects.filter(collection_id=id),
     )
     create_item = CreateModelView(
-        is_instance_view=True,
+        detail=True,
         related_model=Item,
         input_schema=ItemInput,
         output_schema=ItemOutput,

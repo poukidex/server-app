@@ -46,7 +46,7 @@ class ItemViewSet(ModelViewSet):
     delete = DeleteModelView(decorators=[user_is_collection_creator])
 
     list_snaps = ListModelView(
-        is_instance_view=True,
+        detail=True,
         related_model=Snap,
         output_schema=SnapOutput,
         queryset_getter=lambda id: Snap.objects.select_related("user")
@@ -63,7 +63,7 @@ class ItemViewSet(ModelViewSet):
         instance.user = request.user
 
     create_snap = CreateModelView(
-        is_instance_view=True,
+        detail=True,
         related_model=Snap,
         input_schema=SnapInput,
         output_schema=SnapOutput,

@@ -62,7 +62,7 @@ class SnapViewSet(ModelViewSet):
     delete = DeleteModelView(decorators=[user_is_creator])
 
     list_likes = ListModelView(
-        is_instance_view=True,
+        detail=True,
         related_model=Like,
         output_schema=LikeOutput,
         filter_schema=LikeQuery,
